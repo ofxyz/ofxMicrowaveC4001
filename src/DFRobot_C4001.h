@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string>
+#include "ofxGPIO.h"
 #endif
 
 /**
@@ -403,8 +404,8 @@ protected:
   sAllData_t anaysisData(uint8_t * data, uint8_t len);
   sResponseData_t anaysisResponse(uint8_t *data, uint8_t len ,uint8_t count);
   bool sensorStop(void);
-private:
   uint8_t  _addr;
+private:
   uint8_t  _M_Flag = 0;
   sPrivateData_t _buffer;
   virtual void writeReg(uint8_t reg, uint8_t *data, uint8_t len) = 0;
@@ -419,14 +420,12 @@ protected:
   virtual void writeReg(uint8_t reg, uint8_t *data, uint8_t len);
   virtual int16_t readReg(uint8_t reg, uint8_t *data, uint8_t len);
 private:
-  //TwoWire *_pWire;
-  //uint8_t _I2C_addr;
   I2c * i2c;
 	std::string path;
 
 		void setup()
 		{
 			path = "/dev/i2c-1";
-                        i2c = new I2c(path.c_str());
+      i2c = new I2c(path.c_str());
 		}
 };

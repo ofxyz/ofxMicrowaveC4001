@@ -2,8 +2,7 @@
 
 
 #include "ofMain.h"
-#include "ofxAddonTemplate.h"
-
+#include "ofxMicrowaveC4001.h"
 
 class ofApp: public ofBaseApp{
 	public:
@@ -21,4 +20,6 @@ class ofApp: public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
+		ofxMicrowaveC4001 mws;
+
 };

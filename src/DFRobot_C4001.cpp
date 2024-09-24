@@ -72,46 +72,46 @@ void DFRobot_C4001::setSensor(eSetMode_t mode)
   if(uartI2CFlag == I2C_FLAG){
     if(mode == eStartSen){
       writeReg(REG_CTRL0, &temp, (uint8_t)1);
-      delay(200);  // must timer
+      usleep(200);  // must timer
     }else if(mode == eStopSen){
       writeReg(REG_CTRL0, &temp, (uint8_t)1);
-      delay(200);  // must timer
+      usleep(200);  // must timer
     }else if(mode == eResetSen){
       writeReg(REG_CTRL0, &temp, (uint8_t)1);
-      delay(1500);  // must timer
+      usleep(1500);  // must timer
     }else if(mode == eSaveParams){
       writeReg(REG_CTRL1, &temp, (uint8_t)1);
-      delay(500);  // must timer
+      usleep(500);  // must timer
     }else if(mode == eRecoverSen){
       writeReg(REG_CTRL1, &temp, (uint8_t)1);
-      delay(800);  // must timer
+      usleep(800);  // must timer
     }else if(mode == eChangeMode){
       writeReg(REG_CTRL1, &temp, (uint8_t)1);
-      delay(1500);  // must timer
+      usleep(1500);  // must timer
     }
   }else{
     if(mode == eStartSen){
       writeReg(0, (uint8_t *)START_SENSOR, strlen(START_SENSOR));
-      delay(200);  // must timer
+      usleep(200);  // must timer
     }else if(mode == eStopSen){
       writeReg(0, (uint8_t *)STOP_SENSOR, strlen(STOP_SENSOR));
-      delay(200);  // must timer
+      usleep(200);  // must timer
     }else if(mode == eResetSen){
       writeReg(0, (uint8_t *)RESET_SENSOR, strlen(RESET_SENSOR));
-      delay(1500);  // must timer
+      usleep(1500);  // must timer
     }else if(mode == eSaveParams){
       writeReg(0, (uint8_t *)STOP_SENSOR, strlen(STOP_SENSOR));
-      delay(200);  // must timer
+      usleep(200);  // must timer
       writeReg(0, (uint8_t *)SAVE_CONFIG, strlen(SAVE_CONFIG));
-      delay(800);  // must timer
+      usleep(800);  // must timer
       writeReg(0, (uint8_t *)START_SENSOR, strlen(START_SENSOR));
     }else if(mode == eRecoverSen){
       writeReg(0, (uint8_t *)STOP_SENSOR, strlen(STOP_SENSOR));
-      delay(200);
+      usleep(200);
       writeReg(0, (uint8_t *)RECOVER_SENSOR, strlen(RECOVER_SENSOR));
-      delay(800);  // must timer
+      usleep(800);  // must timer
       writeReg(0, (uint8_t *)START_SENSOR, strlen(START_SENSOR));
-      delay(500);
+      usleep(500);
     }
   }
 }
@@ -136,16 +136,16 @@ bool DFRobot_C4001::setSensorMode(eMode_t mode)
     sensorStop();
     if(mode == eExitMode){
       writeReg(0, (uint8_t *)EXIST_MODE, strlen(EXIST_MODE));
-      delay(50);  
+      usleep(50);  
     }else{
       writeReg(0, (uint8_t *)SPEED_MODE, strlen(SPEED_MODE));
-      delay(50);
+      usleep(50);
     }
-    delay(50);
+    usleep(50);
     writeReg(0, (uint8_t *)SAVE_CONFIG, strlen(SAVE_CONFIG));
-    delay(500);
+    usleep(500);
     writeReg(0, (uint8_t *)START_SENSOR, strlen(START_SENSOR));
-    delay(100);
+    usleep(100);
     return true;
   }
 }
@@ -161,7 +161,7 @@ bool DFRobot_C4001::setTrigSensitivity(uint8_t sensitivity)
     setSensor(eSaveParams);
     return true;
   }else{
-    String data = "setSensitivity 255 1";
+    std::string data = "setSensitivity 255 1";
     data[19] = sensitivity + 0x30;
     writeCMD(data, data, (uint8_t)1);
     return true;
@@ -178,7 +178,7 @@ uint8_t DFRobot_C4001::getTrigSensitivity(void)
     sResponseData_t responseData;
     uint8_t temp[100] = {0};
     readReg(0, temp, 100);
-    String data = "getSensitivity";
+    std::string data = "getSensitivity";
     responseData = wRCMD(data, (uint8_t)1);
     if(responseData.status){ 
       return responseData.response1;
@@ -198,7 +198,7 @@ bool DFRobot_C4001::setKeepSensitivity(uint8_t sensitivity)
     setSensor(eSaveParams);
     return true;
   }else{
-    String data = "setSensitivity 1 255";
+    std::string data = "setSensitivity 1 255";
     data[15] = sensitivity + 0x30;
     writeCMD(data, data, (uint8_t)1);
     return true;
@@ -215,7 +215,7 @@ uint8_t DFRobot_C4001::getKeepSensitivity(void)
     sResponseData_t responseData;
     uint8_t temp[100] = {0};
     readReg(0, temp, 100);
-    String data = "getSensitivity";
+    std::string data = "getSensitivity";
     responseData = wRCMD(data, (uint8_t)1);
     if(responseData.status){
       return responseData.response2;
@@ -241,10 +241,10 @@ bool DFRobot_C4001::setDelay(uint8_t trig , uint16_t keep)
     setSensor(eSaveParams);
     return true;
   }else{
-    String data = "setLatency ";
-    data += String((float)trig*0.01, 1);
+    std::string data = "setLatency ";
+    data += std::string((float)trig*0.01, 1);
     data += " ";
-    data += String((float)keep*0.5, 1);
+    data += std::string((float)keep*0.5, 1);
     writeCMD(data, data, (uint8_t)1);
     return true;
   }
@@ -258,7 +258,7 @@ uint8_t DFRobot_C4001::getTrigDelay(void)
     return temp;
   }else{
     sResponseData_t responseData;
-    String data = "getLatency";
+    std::string data = "getLatency";
     responseData = wRCMD(data, (uint8_t)1);
     if(responseData.status){
       return responseData.response1*100;
@@ -275,7 +275,7 @@ uint16_t DFRobot_C4001::getKeepTimerout(void)
     return (((uint16_t)temp[1]) << 8) | temp[0];
   }else{
     sResponseData_t responseData;
-    String data = "getLatency";
+    std::string data = "getLatency";
     responseData = wRCMD(data, (uint8_t)2);
     if(responseData.status){
       return responseData.response2*2;
@@ -304,12 +304,12 @@ bool DFRobot_C4001::setDetectionRange(uint16_t min, uint16_t max, uint16_t trig)
     setSensor(eSaveParams);
     return true;
   }else{
-    String data1 = "setRange ";
-    String data2 = "setTrigRange ";
-    data1 += String(((float)min)/100.0, 1);
+    std::string data1 = "setRange ";
+    std::string data2 = "setTrigRange ";
+    data1 += std::string(((float)min)/100.0, 1);
     data1 += " ";
-    data1 += String(((float)max)/100.0, 1);
-    data2 += String(((float)trig)/100.0, 1);
+    data1 += std::string(((float)max)/100.0, 1);
+    data2 += std::string(((float)trig)/100.0, 1);
     writeCMD(data1, data2, (uint8_t)2);
     return true;
   }
@@ -323,7 +323,7 @@ uint16_t DFRobot_C4001::getTrigRange(void)
     return (uint16_t)(temp[0] | ((uint16_t)temp[1]) << 8);
   }else{
     sResponseData_t responseData;
-    String data = "getTrigRange";
+    std::string data = "getTrigRange";
     responseData = wRCMD(data, (uint8_t)1);
     if(responseData.status){
       return responseData.response1*100;
@@ -340,7 +340,7 @@ uint16_t DFRobot_C4001::getMaxRange(void)
     return (uint16_t)(temp[0] | ((uint16_t)temp[1]) << 8);
   }else{
     sResponseData_t responseData;
-    String data = "getRange";
+    std::string data = "getRange";
     responseData = wRCMD(data, (uint8_t)2);
     if(responseData.status){
       return responseData.response2*100;
@@ -357,7 +357,7 @@ uint16_t DFRobot_C4001::getMinRange(void)
     return (uint16_t)(temp[0] | ((uint16_t)temp[1]) << 8);
   }else{
     sResponseData_t responseData;
-    String data = "getRange";
+    std::string data = "getRange";
     responseData = wRCMD(data, (uint8_t)2);
     if(responseData.status){
       return responseData.response1*100;
@@ -447,11 +447,11 @@ bool DFRobot_C4001::setDetectThres(uint16_t min, uint16_t max, uint16_t thres)
     setSensor(eSaveParams);
     return true;
   }else{
-    String data1 = "setRange ";
-    String data2 = "setThrFactor ";
-    data1 += String(((float)min)/100.0, 1);
+    std::string data1 = "setRange ";
+    std::string data2 = "setThrFactor ";
+    data1 += std::string(((float)min)/100.0, 1);
     data1 += " ";
-    data1 += String(((float)max)/100.0, 1);
+    data1 += std::string(((float)max)/100.0, 1);
     data2 += thres;
     writeCMD(data1, data2, (uint8_t)2);
     return true;
@@ -466,7 +466,7 @@ bool DFRobot_C4001::setIoPolaity(uint8_t value)
   if(uartI2CFlag == I2C_FLAG){
     return true;
   }else{
-    String data = "setGpioMode 1 ";
+    std::string data = "setGpioMode 1 ";
     data += value;
     writeCMD(data, data, (uint8_t)1);
     return true;
@@ -479,7 +479,7 @@ uint8_t DFRobot_C4001::getIoPolaity(void)
     return 0;
   }else{
     sResponseData_t responseData;
-    String data = "getGpioMode 1";
+    std::string data = "getGpioMode 1";
     responseData = wRCMD(data, (uint8_t)2);
     if(responseData.status){
       return responseData.response2;
@@ -496,7 +496,7 @@ bool DFRobot_C4001::setPwm(uint8_t pwm1 , uint8_t pwm2, uint8_t timer)
   if(uartI2CFlag == I2C_FLAG){
     return true;
   }else{
-    String data = "setPwm ";
+    std::string data = "setPwm ";
     data += pwm1;
     data += " ";
     data += pwm2;
@@ -515,7 +515,7 @@ sPwmData_t DFRobot_C4001::getPwm(void)
     return pwmData;
   }else{
     sResponseData_t responseData;
-    String data = "getPwm";
+    std::string data = "getPwm";
     responseData = wRCMD(data, (uint8_t)3);
     if(responseData.status){
       pwmData.pwm1 = responseData.response1;
@@ -534,7 +534,7 @@ uint16_t DFRobot_C4001::getTMinRange(void)
     return (uint16_t)(temp[0] | ((uint16_t)temp[1]) << 8);
   }else{
     sResponseData_t responseData;
-    String data = "getRange";
+    std::string data = "getRange";
     responseData = wRCMD(data, (uint8_t)1);
     if(responseData.status){
       return responseData.response1*100;
@@ -551,7 +551,7 @@ uint16_t DFRobot_C4001::getTMaxRange(void)
     return (uint16_t)(temp[0] | ((uint16_t)temp[1]) << 8);
   }else{
     sResponseData_t responseData;
-    String data = "getRange";
+    std::string data = "getRange";
     responseData = wRCMD(data, (uint8_t)2);
     if(responseData.status){
       return responseData.response2*100;
@@ -568,7 +568,7 @@ uint16_t DFRobot_C4001::getThresRange(void)
     return (uint16_t)(temp[0] | ((uint16_t)temp[1]) << 8);
   }else{
     sResponseData_t responseData;
-    String data = "getThrFactor";
+    std::string data = "getThrFactor";
     responseData = wRCMD(data, (uint8_t)1);
     if(responseData.status){
       return responseData.response1;
@@ -584,7 +584,7 @@ void DFRobot_C4001::setFrettingDetection(eSwitch_t sta)
     writeReg(REG_MICRO_MOTION, &temp, (uint8_t)1);
     setSensor(eSaveParams);
   }else{
-    String data = "setMicroMotion ";
+    std::string data = "setMicroMotion ";
     data += sta;
     writeCMD(data, data, (uint8_t)1);
   }
@@ -598,7 +598,7 @@ eSwitch_t DFRobot_C4001::getFrettingDetection(void)
     return (eSwitch_t)temp;
   }else{
     sResponseData_t responseData;
-    String data = "getMicroMotion";
+    std::string data = "getMicroMotion";
     responseData = wRCMD(data, (uint8_t)1);
     if(responseData.status){
       return (eSwitch_t)responseData.response1;
@@ -691,36 +691,36 @@ sAllData_t DFRobot_C4001::anaysisData(uint8_t * data, uint8_t len)
   return allData;
 }
 
-sResponseData_t DFRobot_C4001::wRCMD(String cmd1, uint8_t count)
+sResponseData_t DFRobot_C4001::wRCMD(std::string cmd1, uint8_t count)
 {
   uint8_t len = 0;
   uint8_t temp[200] = {0};
   sResponseData_t responseData;
   sensorStop();
   writeReg(0, (uint8_t *)cmd1.c_str(), cmd1.length());
-  delay(100);
+  usleep(100);
   len = readReg(0, temp, 200);
   responseData = anaysisResponse(temp, len, count);
-  delay(100);
+  usleep(100);
   writeReg(0, (uint8_t *)START_SENSOR, strlen(START_SENSOR));
-  delay(100);
+  usleep(100);
   return responseData;
 }
 
-void DFRobot_C4001::writeCMD(String cmd1 , String cmd2, uint8_t count)
+void DFRobot_C4001::writeCMD(std::string cmd1 , std::string cmd2, uint8_t count)
 {
   sensorStop();
   writeReg(0, (uint8_t *)cmd1.c_str(), cmd1.length());
-  delay(100);
+  usleep(100);
   if(count > 1){
-    delay(100);
+    usleep(100);
     writeReg(0, (uint8_t *)cmd2.c_str(), cmd2.length());
-    delay(100);
+    usleep(100);
   }
   writeReg(0, (uint8_t *)SAVE_CONFIG, strlen(SAVE_CONFIG));
-  delay(100);
+  usleep(100);
   writeReg(0, (uint8_t *)START_SENSOR, strlen(START_SENSOR));
-  delay(100);
+  usleep(100);
 }
 
 bool DFRobot_C4001::sensorStop(void)
@@ -728,7 +728,7 @@ bool DFRobot_C4001::sensorStop(void)
   uint8_t len = 0;
   uint8_t temp[200] = {0};
   writeReg(0, (uint8_t *)STOP_SENSOR, strlen(STOP_SENSOR));
-  delay(1000);
+  usleep(1000);
   len = readReg(0, temp, 200);
   while(1){
     if(len != 0){
@@ -737,58 +737,33 @@ bool DFRobot_C4001::sensorStop(void)
       }
     }
     memset(temp, 0, 200);
-    delay(400);
+    usleep(400);
     writeReg(0, (uint8_t *)STOP_SENSOR, strlen(STOP_SENSOR));
     len = readReg(0, temp, 200);
     
   }
 }
 
-DFRobot_C4001_I2C::DFRobot_C4001_I2C(TwoWire *pWire, uint8_t addr)
+DFRobot_C4001_I2C::DFRobot_C4001_I2C(uint8_t addr)
 {
-  _pWire = pWire;
-  this->_I2C_addr = addr;
+  _addr = addr;
   uartI2CFlag = I2C_FLAG;
 }
 
 bool DFRobot_C4001_I2C::begin()
 {
-  // _pWire->begin();
-  // _pWire->beginTransmission(_I2C_addr);
-  // if(_pWire->endTransmission() == 0){
-  //   return true;
-  // }else{
-  //   return false;
-  // }
-
   path = "/dev/i2c-1";
   i2c = new I2c(path.c_str());
-  i2c->addressSet(_I2C_addr);
+  return (i2c->addressSet(_addr) > 0)? true : false;
 }
 
 void DFRobot_C4001_I2C::writeReg(uint8_t reg, uint8_t *data, uint8_t len)
 {
-  // _pWire->beginTransmission(this->_I2C_addr);
-  // _pWire->write(reg);
-  // _pWire->write(data, len);
-  // _pWire->endTransmission();
   i2c->writeBlockData(reg, len,data);
 
 }
 
 int16_t DFRobot_C4001_I2C::readReg(uint8_t reg, uint8_t *data, uint8_t len)
 {
-  i2c->readBlockData(reg, len, data);
-  // /* i2c get data */
-  // uint8_t i = 0;
-  // _pWire->beginTransmission(this->_I2C_addr);
-  // _pWire->write(reg);
-  // if(_pWire->endTransmission(false) != 0){
-  //   return -1;
-  // }
-  // _pWire->requestFrom((uint8_t)this->_I2C_addr,(uint8_t)len);
-  // while (_pWire->available()){
-  //   data[i++]=_pWire->read();
-  // }
-  // return i;
+  return i2c->readBlock(reg, len, data);
 }
