@@ -8,10 +8,10 @@ class ofxMicrowaveC4001 {
         ofxMicrowaveC4001();
         ~ofxMicrowaveC4001();
 
-        void setup();
+        void setup(const char * deviceName, uint8_t address);
         void update();
+        DFRobot_C4001_I2C* getSensor();
+
     private:
-        I2c * bus;
-
+        DFRobot_C4001_I2C* MWS;
 };
-

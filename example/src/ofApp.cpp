@@ -1,19 +1,20 @@
 #include "ofApp.h"
 
-
 //--------------------------------------------------------------
-void ofApp::setup(){
-
+void ofApp::setup() {
+	mws.setup("/dev/i2c-1", 0x2A);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-
+	mws.update();
+	currDist = mws.getSensor()->getTargetRange();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-
+	ofSetColor(0,255,0);
+	ofDrawCircle(ofGetWidth()/2, ofGetHeight()/2, currDist*50);
 }
 
 //--------------------------------------------------------------

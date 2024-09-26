@@ -744,15 +744,15 @@ bool DFRobot_C4001::sensorStop(void)
   }
 }
 
-DFRobot_C4001_I2C::DFRobot_C4001_I2C(uint8_t addr)
+DFRobot_C4001_I2C::DFRobot_C4001_I2C(const char * deviceName, uint8_t addr)
 {
+  path = deviceName;
   _addr = addr;
   uartI2CFlag = I2C_FLAG;
 }
 
 bool DFRobot_C4001_I2C::begin()
 {
-  path = "/dev/i2c-1";
   i2c = new I2c(path.c_str());
   return (i2c->addressSet(_addr) > 0)? true : false;
 }

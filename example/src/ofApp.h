@@ -21,5 +21,6 @@ class ofApp: public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
 		ofxMicrowaveC4001 mws;
+		float currDist = 0;
 
 };

@@ -414,7 +414,7 @@ private:
 
 class DFRobot_C4001_I2C:public DFRobot_C4001{
 public:
-  DFRobot_C4001_I2C( uint8_t addr = DEVICE_ADDR_0);
+  DFRobot_C4001_I2C(const char * deviceName, uint8_t addr = DEVICE_ADDR_0);
   bool begin(void);
 protected:
   virtual void writeReg(uint8_t reg, uint8_t *data, uint8_t len);
@@ -422,10 +422,4 @@ protected:
 private:
   I2c * i2c;
 	std::string path;
-
-		void setup()
-		{
-			path = "/dev/i2c-1";
-      i2c = new I2c(path.c_str());
-		}
 };
