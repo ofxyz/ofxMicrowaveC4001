@@ -1,5 +1,11 @@
 #include "ofApp.h"
 
+#ifdef __arm__
+#define FAKESENSE false
+#else
+#define FAKESENSE true
+#endif
+
 //--------------------------------------------------------------
 void ofApp::setup() {
 	mws.setup("/dev/i2c-1", 0x2A);
@@ -8,7 +14,7 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update(){
 	mws.update();
-	currDist = mws.getSensor()->getTargetRange();
+	currDist = mws.getSensor()->getTargetRange(FAKESENSE);
 }
 
 //--------------------------------------------------------------

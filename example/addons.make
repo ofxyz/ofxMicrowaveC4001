@@ -1,2 +1,1 @@
-ofxGPIO
 ofxMicrowaveC4001
