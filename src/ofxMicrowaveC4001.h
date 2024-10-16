@@ -36,7 +36,7 @@ public:
 	DFRobot_C4001_I2C* getSensor();
 
 	// For prototyping purposes
-	float getFakeRange() {
+	float getFakeTargetRange() {
 		/* TODO: Make a better fake with some controls */
 		float fakePos = ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, 0.f, 12.f);
 		return ( (fakePos > 2 && fakePos < 5) || fakePos > 9) ? fakePos : 0;
