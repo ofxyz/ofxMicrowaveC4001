@@ -14,7 +14,7 @@ DFRobot_C4001_I2C* ofxMicrowaveC4001::getSensor() {
 void ofxMicrowaveC4001::setup(const char * devicePath, uint8_t address)
 {
     /*
-     * The Df Robot sensor has a switch 
+     * The DfRobot sensor has a switch 
      * for address selection a maximum
      * of two sensors on I2C: address = 0x2A || 0x2B
      */

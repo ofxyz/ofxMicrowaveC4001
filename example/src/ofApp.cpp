@@ -1,11 +1,5 @@
 #include "ofApp.h"
 
-#ifdef __arm__
-#define FAKESENSE false
-#else
-#define FAKESENSE true
-#endif
-
 //--------------------------------------------------------------
 void ofApp::setup() {
 	mws.setup("/dev/i2c-1", 0x2A);
@@ -13,13 +7,23 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::update() {
-	currDist = mws.getSensor()->getTargetRange(FAKESENSE);
+	if (mws.isFake()) {
+		// No GPIO access
+		currDist = mws.getFakeRange();
+	}
+	else {
+		// GPIO access
+		currDist = mws.getSensor()->getTargetRange();
+	}
+
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
 	ofSetColor(0,255,0);
-	ofDrawCircle(ofGetWidth()/2, ofGetHeight()/2, currDist*50);
+	float maxRadius = std::min(ofGetWidth(), ofGetHeight())*0.5;
+	float radius = ofMap(currDist, 0, 12, 0, maxRadius);
+	ofDrawCircle(ofGetWidth()*0.5, ofGetHeight()*0.5, radius);
 }
 
 //--------------------------------------------------------------
