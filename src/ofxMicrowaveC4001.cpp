@@ -11,7 +11,7 @@ DFRobot_C4001_I2C* ofxMicrowaveC4001::getSensor() {
 
 #ifdef __arm__
 
-void ofxMicrowaveC4001::setup(const char * deviceName, uint8_t address)
+void ofxMicrowaveC4001::setup(const char * devicePath, uint8_t address)
 {
     /*
      * The Df Robot sensor has a switch 
@@ -19,7 +19,7 @@ void ofxMicrowaveC4001::setup(const char * deviceName, uint8_t address)
      * of two sensors on I2C: address = 0x2A || 0x2B
      */
 
-    mmSensor = new DFRobot_C4001_I2C(deviceName, address);
+    mmSensor = new DFRobot_C4001_I2C(devicePath, address);
     mmSensor->begin();
     mmSensor->setSensorMode(eSpeedMode);
     mmSensor->setDetectThres(30, 600, 10);
