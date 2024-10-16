@@ -12,13 +12,12 @@ void ofApp::setup() {
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
-	mws.update();
+void ofApp::update() {
 	currDist = mws.getSensor()->getTargetRange(FAKESENSE);
 }
 
 //--------------------------------------------------------------
-void ofApp::draw(){
+void ofApp::draw() {
 	ofSetColor(0,255,0);
 	ofDrawCircle(ofGetWidth()/2, ofGetHeight()/2, currDist*50);
 }
