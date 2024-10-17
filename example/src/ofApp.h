@@ -21,5 +21,6 @@ class ofApp: public ofBaseApp{
 		
 		ofxMicrowaveC4001 mws;
 		float currDist = 0;
+		uint8_t targetCount = 0;
 
 };

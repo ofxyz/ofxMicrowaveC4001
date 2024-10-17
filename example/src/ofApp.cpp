@@ -7,19 +7,39 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::update() {
+	usleep(10000);
 	if (mws.isFake()) {
 		// No GPIO access
-		currDist = mws.getFakeRange();
+		ofLog() << "No GPIO access... ";
+		currDist = mws.getFakeTargetRange();
 	}
 	else {
 		// GPIO access
-		currDist = mws.getSensor()->getTargetRange();
-	}
+		ofLog() << "Getting Data... ";
+		targetCount = mws.getSensor()->getTargetNumber();
+		if(targetCount > 0) {
+			//mws.getSensor()->getTargetNumber();
+			currDist = mws.getSensor()->getTargetRange();
+		} else {
+			currDist = 0;
+		}
+		
+		ofLog() << "Target Count: " << (int)targetCount << "\n Current Distance" << currDist;
 
+		//if(mws.getSensor()->getTargetNumber() > 0) {
+		//}
+
+		//ofLog() << "Getting target Range ...";
+		//currDist = mws.getSensor()->getTargetRange();
+		//
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+
+	if(mws.isFake()) ofDrawBitmapString("Using fake data...", 50, 50);
+	
 	ofSetColor(0,255,0);
 	float maxRadius = std::min(ofGetWidth(), ofGetHeight())*0.5;
 	float radius = ofMap(currDist, 0, 12, 0, maxRadius);

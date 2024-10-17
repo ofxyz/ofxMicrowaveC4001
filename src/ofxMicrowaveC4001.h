@@ -1,6 +1,12 @@
 #pragma once
 
-#ifdef __arm__
+#include <stdio.h>
+
+#if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_7__)
+#define RPI
+#endif
+
+#ifdef RPI
 #include "ofxGPIO.h"
 #include "DFRobot_C4001.h"
 #else
@@ -9,8 +15,11 @@
 // Fake Sensor
 class DFRobot_C4001_I2C {
 public:
+	DFRobot_C4001_I2C(){};
+	virtual ~DFRobot_C4001_I2C(){};
 	float getTargetRange() {
 		// Not connected
+		ofLog() << "Sensor not connected...";
 		return 0;
 	}
 };
@@ -19,8 +28,9 @@ public:
 class ofxMicrowaveC4001 {
 public:
 	ofxMicrowaveC4001();
-	~ofxMicrowaveC4001();
-#ifdef __arm__
+	virtual ~ofxMicrowaveC4001();
+
+#ifdef RPI
 	void setup(const char* devicePath, uint8_t address);
 	bool isFake() { return false; };
 #else
