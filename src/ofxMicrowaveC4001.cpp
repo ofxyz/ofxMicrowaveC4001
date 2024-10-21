@@ -22,32 +22,35 @@ void ofxMicrowaveC4001::setup(const char * devicePath, uint8_t address)
      * of two sensors on I2C: address = 0x2A || 0x2B
      */
 
+    //Make sure we can run setup multiple times
+    if (mmSensor != nullptr) delete mmSensor;
+
     mmSensor = new DFRobot_C4001_I2C(devicePath, address);
     while (!mmSensor->begin()){
-        ofLog() << "Waiting to connect to sensor ...";
+        ofLog(OF_LOG_NOTICE) << "Waiting to connect to sensor ...";
         sleep(1000);
     }
 
-    ofLog() << "Sensor connected ...";
+    ofLog(OF_LOG_NOTICE) << "Sensor connected ...";
 
     sleep(1000);
-    ofLog() << "setSensorMode...";
+    ofLog(OF_LOG_VERBOSE) << "setSensorMode...";
 
     if (!mmSensor->setSensorMode(eSpeedMode))
     {
-        ofLog() << "Failed to setSensorMode";
+        ofLog(OF_LOG_NOTICE) << "Failed to setSensorMode";
     }
     
     sleep(1000);
-    ofLog() << "setDetectThres...";
+    ofLog(OF_LOG_VERBOSE) << "setDetectThres...";
 
-    if (!mmSensor->setDetectThres(30, 500, 120))
+    if (!mmSensor->setDetectThres(detectThres.x, detectThres.y, detectThres.z))
     {
-        ofLog() << "Failed to setDetectThres";
+        ofLog(OF_LOG_NOTICE) << "Failed to setDetectThres";
     }
-    
+   
     sleep(1000);
-    ofLog() << "setFrettingDetection...";
+    ofLog(OF_LOG_VERBOSE) << "setFrettingDetection...";
 
     mmSensor->setFrettingDetection(eON);
     sleep(1000);

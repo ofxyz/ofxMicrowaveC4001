@@ -54,4 +54,10 @@ public:
 
 private:
 	DFRobot_C4001_I2C* mmSensor;
+	bool useFakeData = false;
+
+	//@param x = min Detection range Minimum distance, unit cm, range 0.3~20m(30~2000), not exceeding max, otherwise the function is abnormal.
+	//@param y = max Detection range Maximum distance, unit cm, range 2.4~20m(240~2000)
+	//@param z = Target detection threshold, dimensionless unit 0.1, range 0~6553.5 (0~65535) 
+	glm::ivec3 detectThres = { 30, 500, 120 };
 };
