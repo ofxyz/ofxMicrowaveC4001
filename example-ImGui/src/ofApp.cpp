@@ -19,13 +19,19 @@ void ofApp::update() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+
 	gui.begin();
 
 	// Define the ofWindow as a docking space
 	ImGui::DockSpaceOverViewport(0, NULL, ImGuiDockNodeFlags_PassthruCentralNode);
 
+	int i = 0;
+	static std::string sid;
 	for(mmSensor* s : mmWaveSensors.getSensors() ) {
+		sid = "C4001Window" + std::to_string(++i);
+		ImGui::PushID(sid.c_str());
 		drawC4001Window(s);
+		ImGui::PopID();
 	}
 
 	gui.end();
@@ -35,7 +41,7 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::drawC4001Window(mmSensor* sensor)
-{
+{	
 	ImGui::Begin(sensor->getName().c_str());
 
 	ImGui::Text("Target Distance: %.2f meters", sensor->targetDist);
@@ -50,7 +56,9 @@ void ofApp::drawC4001Window(mmSensor* sensor)
 	ImGui::GetWindowDrawList()->AddCircleFilled(pos+pos2, radius, IM_COL32(0, 255, 0, 255), 20);
 	
 	ImGui::Checkbox("Motion detected", &sensor->motionDetected);
+
 	ImGui::End();
+
 }
 
 //--------------------------------------------------------------

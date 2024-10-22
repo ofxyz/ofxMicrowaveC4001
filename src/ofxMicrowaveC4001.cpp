@@ -29,7 +29,7 @@ void ofxMicrowaveC4001::setup()
 {
 #ifdef RPI
     /*
-     * The I2C Df Robot C4001 sensor address can be set to 0x2A or 0x2B (Dipswitch)
+     * The I2C DfRobot C4001 sensor address can be set to 0x2A or 0x2B (DIP switch)
      */
     std::vector<std::pair<std::string, uint8_t>> devices = I2c::getDevices(0x2A, 0x2B);
 	if (!devices.empty()) {
@@ -50,8 +50,7 @@ void ofxMicrowaveC4001::setup()
         mmSensors.push_back(new mmSensor(d.first.c_str(), d.second));
     }
 #else
-    // Add a fake sensor for prototyping
-    // We are not on a raspberry but let's have some fun
+    // Add a fake for prototyping
     mmSensors.push_back(new mmSensor());
 #endif
 

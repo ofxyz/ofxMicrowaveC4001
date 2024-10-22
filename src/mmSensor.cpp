@@ -3,20 +3,28 @@
 #include <iostream>
 #include <iomanip>
 
-#define sleep(x) usleep(1000 * x)
+#ifdef RPI
+#define Sleep(x) usleep(1000 * x)
+#endif
 
 mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x2A*/)
 {
     if(path != "") {
+#ifdef RPI
         device = new DFRobot_C4001_I2C(path.c_str(), address);
+        m_isFake = false;
+        name = "MmWave Sensor (0x" + uint8_to_hex_string(address) +")";
+#else
+        m_isFake = true;
+#endif
     } else {
-        device = nullptr;
+        device = new MyToySensor();
+        name = "Fake MmWave Sensor";
     }
 
     // Init 
     m_path = path;
     m_address = address;
-    name = "C4001-0x" + uint8_to_hex_string(address);
     targetDist = 0;
 	targetCount = 0;
 	triggerSensitivity = 5; // Between 0-9
@@ -32,13 +40,13 @@ mmSensor::~mmSensor()
 
 bool mmSensor::setup()
 {
-    static int connectCounter = 4;
-    while (!device->begin() && connectCounter-- != 0)
+    int i = 4;
+    while (!device->begin() && i-- != 0)
     {
         ofLog(OF_LOG_NOTICE) << "Waiting to connect to sensor ...";
-        sleep(1000);
+        Sleep(1000);
     }
-    if(connectCounter == 0) {
+    if(i == 0) {
         ofLog(OF_LOG_WARNING) << "Could not connect to sensor (timeout) ...";
         return false;
     }
@@ -50,13 +58,7 @@ bool mmSensor::setup()
     {
         ofLog(OF_LOG_NOTICE) << "Failed to setSensorMode";
     }
-    
-    // I don't know what this does but I don't think it's needed.
-    //ofLog(OF_LOG_VERBOSE) << "setFrettingDetection...";
-    //device->setFrettingDetection(eON);
-    //Turing it off for consistency...
-    device->setFrettingDetection(eOFF);
-    
+
     updateDetectRange();
     updateDetectThres();
     updateTrigSensitivity();
@@ -97,6 +99,16 @@ bool mmSensor::updateTrigSensitivity()
     return true;
 }
 
+glm::ivec3& mmSensor::getDetectTRange()
+{
+	return detectRange;
+}
+
+glm::ivec3& mmSensor::getDetectThres()
+{
+	return detectThres;
+}
+
 bool mmSensor::update()
 {
     // GPIO access
@@ -113,12 +125,9 @@ bool mmSensor::update()
     return true;
 }
 
-void mmSensor::setFake(bool f){
-    m_bFake = f;
-}
-
-bool mmSensor::isFake(){
-    return m_bFake;
+bool mmSensor::isFake()
+{
+    return m_isFake;
 }
 
 std::string mmSensor::uint8_to_hex_string(uint8_t value)
@@ -130,7 +139,7 @@ std::string mmSensor::uint8_to_hex_string(uint8_t value)
     return ss.str();
 }
 
-std::string mmSensor::getName()
+std::string& mmSensor::getName()
 {
     return name;
 }

@@ -4,9 +4,15 @@
 #define RPI
 #endif
 
+#include "MyToySensor.h"
+
 #ifdef RPI
 #include "ofxGPIO.h"
 #include "DFRobot_C4001.h"
+#else
+
+extern class DFRobot_C4001_I2C;
+
 #endif
 
 class mmSensor {
@@ -16,7 +22,6 @@ public:
 
 	bool setup();
 	bool update();
-	void setFake(bool f);
 	bool isFake();
 
 	bool updateDetectRange();
@@ -25,31 +30,26 @@ public:
 
 	glm::ivec3& getDetectTRange();
 	glm::ivec3& getDetectThres();
-
-	// For prototyping purposes
-	// TODO: Implement differently
-	float getFakeTargetRange() {
-		/* TODO: Make a better fake with some controls */
-		float fakePos = ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, 0.f, 12.f);
-		return ( (fakePos > 2 && fakePos < 5) || fakePos > 9) ? fakePos : 0;
-	}
-
-	std::string getName();
+	std::string& getName();
 	std::string uint8_to_hex_string(uint8_t value);
 
 	float targetDist;
 	uint8_t targetCount;
-	// Trigger sensitivity between 0-9 
+	// Between 0-9 
 	uint8_t triggerSensitivity;
 	bool motionDetected;
 	glm::ivec3 detectRange;
 	glm::ivec3 detectThres;
-
-private:
-	// Will be a fake sensor when no GPIO
-	DFRobot_C4001_I2C* device;
 	std::string m_path;
 	uint8_t m_address;
 	std::string name;
-	bool m_bFake;
+
+private:
+	bool m_isFake;
+#ifdef RPI
+	DFRobot_C4001_I2C* device;
+#else
+	MyToySensor* device;
+#endif
+
 };
