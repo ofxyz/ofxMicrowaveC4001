@@ -19,8 +19,6 @@ class ofApp: public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
-		ofxMicrowaveC4001 mws;
-		float currDist = 0;
-		uint8_t targetCount = 0;
+		ofxMicrowaveC4001 mmWaveSensors;
 
 };

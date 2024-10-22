@@ -1,59 +1,72 @@
 #include "ofxMicrowaveC4001.h"
 
-#define sleep(x) usleep(1000 * x)
+#ifdef RPI
+#include "i2c.h"
+#endif
 
-ofxMicrowaveC4001::ofxMicrowaveC4001() : mmSensor(nullptr) {}
-ofxMicrowaveC4001::~ofxMicrowaveC4001() {
-	if(mmSensor != nullptr) delete mmSensor;
+ofxMicrowaveC4001::ofxMicrowaveC4001() {}
+ofxMicrowaveC4001::~ofxMicrowaveC4001()
+{
+    clearSensors();
 };
 
-DFRobot_C4001_I2C* ofxMicrowaveC4001::getSensor() {
-	return mmSensor; // DIY
+void ofxMicrowaveC4001::clearSensors()
+{
+    for(auto* s : mmSensors) {
+        if(s != nullptr){
+            delete s;
+            s = nullptr;
+        } 
+    }
+    mmSensors.clear();
 }
 
-#ifdef RPI
+std::vector<mmSensor*>& ofxMicrowaveC4001::getSensors() {
+	return mmSensors;
+}
 
-void ofxMicrowaveC4001::setup(const char * devicePath, uint8_t address)
+void ofxMicrowaveC4001::setup()
 {
-
+#ifdef RPI
     /*
-     * The Df Robot sensor has a switch 
-     * for address selection a maximum
-     * of two sensors on I2C: address = 0x2A || 0x2B
+     * The I2C Df Robot C4001 sensor address can be set to 0x2A or 0x2B (Dipswitch)
      */
-
-    //Make sure we can run setup multiple times
-    if (mmSensor != nullptr) delete mmSensor;
-
-    mmSensor = new DFRobot_C4001_I2C(devicePath, address);
-    while (!mmSensor->begin()){
-        ofLog(OF_LOG_NOTICE) << "Waiting to connect to sensor ...";
-        sleep(1000);
-    }
-
-    ofLog(OF_LOG_NOTICE) << "Sensor connected ...";
-
-    sleep(1000);
-    ofLog(OF_LOG_VERBOSE) << "setSensorMode...";
-
-    if (!mmSensor->setSensorMode(eSpeedMode))
-    {
-        ofLog(OF_LOG_NOTICE) << "Failed to setSensorMode";
-    }
+    std::vector<std::pair<std::string, uint8_t>> devices = I2c::getDevices(0x2A, 0x2B);
+	if (!devices.empty()) {
+        ofLog(OF_LOG_NOTICE) << "Found " << devices.size() << " DfRobot C4001 sensor(s):";
+        for(auto &device: devices){
+            ofLog(OF_LOG_VERBOSE) << "Path: " << device.first.c_str() << " Device: " << (int)device.second;
+        }
+	} else {
+		ofLog(OF_LOG_NOTICE) << "No DfRobot C4001 sensors found.";
+        return;
+	}
+#endif
     
-    sleep(1000);
-    ofLog(OF_LOG_VERBOSE) << "setDetectThres...";
+    clearSensors(); // Make sure we can run setup multiple times (Connect / Reconnect?)
 
-    if (!mmSensor->setDetectThres(detectThres.x, detectThres.y, detectThres.z))
-    {
-        ofLog(OF_LOG_NOTICE) << "Failed to setDetectThres";
+#ifdef RPI
+    for(auto d : devices){
+        mmSensors.push_back(new mmSensor(d.first.c_str(), d.second));
     }
-   
-    sleep(1000);
-    ofLog(OF_LOG_VERBOSE) << "setFrettingDetection...";
+#else
+    // Add a fake sensor for prototyping
+    // We are not on a raspberry but let's have some fun
+    mmSensors.push_back(new mmSensor());
+#endif
 
-    mmSensor->setFrettingDetection(eON);
-    sleep(1000);
+    for(auto& mms: mmSensors)
+    {
+        mms->setup();
+    }
 };
 
-#endif
+void ofxMicrowaveC4001::update()
+{
+    // TODO: We should add a capacitor here
+    // This will slow down fast running apps 
+    for(auto& mms: mmSensors)
+    {
+        mms->update();
+    }
+}

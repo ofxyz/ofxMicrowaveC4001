@@ -22,14 +22,9 @@ class ofApp: public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+
+		ofxMicrowaveC4001 mmWaveSensors;
+
 		ofxImGui::Gui gui;
-		void drawC4001Window();
-
-		ofxMicrowaveC4001 C4001;
-		std::string devicePath = "/dev/i2c-1";
-		uint8_t deviceAddress = 0x2A;
-		// Move these to ofxMicrowaveC4001
-		float targetDist = 0;
-		uint8_t targetCount = 0;
-
+		void drawC4001Window(mmSensor*);
 };
