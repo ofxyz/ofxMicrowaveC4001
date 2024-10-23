@@ -7,18 +7,23 @@
 #define Sleep(x) usleep(1000 * x)
 #endif
 
-mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x2A*/)
+mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
 {
     if(path != "") {
 #ifdef RPI
-        device = new DFRobot_C4001_I2C(path.c_str(), address);
         m_isFake = false;
+        fakeSensor = nullptr;
+        device = new DFRobot_C4001_I2C(path.c_str(), address);
         name = "MmWave Sensor (0x" + uint8_to_hex_string(address) +")";
 #else
         m_isFake = true;
+        device = nullptr;
+        fakeSensor = new MyToySensor("Fake "+path).c_str(), address);
 #endif
     } else {
-        device = new MyToySensor();
+        m_isFake = true;
+        device = nullptr;
+        fakeSensor = new MyToySensor();
         name = "Fake MmWave Sensor";
     }
 
@@ -29,14 +34,22 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x2A*/)
 	targetCount = 0;
 	triggerSensitivity = 5; // Between 0-9
 	motionDetected = false;
+    m_updateDevice = false;
     detectRange = { 30, 300, 240 };
 	detectThres = { 30, 150, 10 };
+    m_lastUpdate = std::chrono::high_resolution_clock::now();
+    m_lastSync   = std::chrono::high_resolution_clock::now();
+    m_ForceSync = false;
 };
 
 mmSensor::~mmSensor()
 {
     if(device != nullptr) delete device;
 };
+
+void mmSensor::syncNow(){
+    m_ForceSync = true;
+}
 
 bool mmSensor::setup()
 {
@@ -109,8 +122,36 @@ glm::ivec3& mmSensor::getDetectThres()
 	return detectThres;
 }
 
+bool mmSensor::isInSync(){
+    return !m_updateDevice;
+}
+
+void mmSensor::updateDevice(){
+    m_updateDevice = true;
+}
+
 bool mmSensor::update()
 {
+    float lastupdate = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_lastUpdate).count();
+    if(lastupdate > updateSec) {
+        m_lastUpdate = std::chrono::high_resolution_clock::now();
+    } else {
+        // All good ...
+        return true;
+    }
+
+    float lastsync = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_lastSync).count();
+    if( (m_updateDevice && lastsync > syncSec) || m_ForceSync) {
+        m_lastSync = std::chrono::high_resolution_clock::now();
+        m_ForceSync = false;
+        bool r1 = updateDetectRange();
+        bool r2 = updateDetectThres();
+        bool r3 = updateTrigSensitivity();
+        if( r1 == true && r2 == true && r3 == true) {
+            m_updateDevice = false;
+        }
+    }
+
     // GPIO access
     ofLog(OF_LOG_VERBOSE) << "Getting data from C4001... ";
     targetCount = device->getTargetNumber();

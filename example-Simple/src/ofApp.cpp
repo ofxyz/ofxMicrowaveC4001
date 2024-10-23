@@ -4,6 +4,8 @@
 void ofApp::setup()
 {
 	mmWaveSensors.setup();
+	ofBackground(ofColor(0,0,255));
+	ofSetCircleResolution(4);
 }
 
 //--------------------------------------------------------------
@@ -14,14 +16,14 @@ void ofApp::update()
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-	
+	ofSetColor(255,255,255);
 	if(mmWaveSensors.getSensors().size() == 0) {
 		ofDrawBitmapString("[I2C] No DfRobot C4001 sensor found...", 50, 50);
 	} else {
 		ofDrawBitmapString(mmWaveSensors.getSensors()[0]->getName(), 50, 50);
-		ofSetColor(0,255,0);
 		float maxRadius = std::min(ofGetWidth(), ofGetHeight())*0.5;
-		float radius = ofMap(mmWaveSensors.getSensors()[0]->targetDist, 0, 12, 0, maxRadius);
+		float radius = ofMap(mmWaveSensors.getSensors()[0]->targetDist, 0, 5, 1, maxRadius);
+		ofSetColor(255,0,0);
 		ofDrawCircle(ofGetWidth()*0.5, ofGetHeight()*0.5, radius);
 	}
 }
