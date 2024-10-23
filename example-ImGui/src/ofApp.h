@@ -26,5 +26,5 @@ class ofApp: public ofBaseApp{
 		ofxMicrowaveC4001 mmWaveSensors;
 
 		ofxImGui::Gui gui;
-		void drawC4001Window(mmSensor*);
+		void drawC4001Window(std::vector<mmSensor*>& sensors);
 };

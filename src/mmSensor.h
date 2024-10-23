@@ -13,7 +13,7 @@ extern class DFRobot_C4001_I2C;
 #endif
 
 #include "MyToySensor.h"
-
+#include "ofJson.h"
 
 class mmSensor {
 public:
@@ -31,24 +31,36 @@ public:
 	bool updateDetectThres();
 	bool updateTrigSensitivity();
 
+	ofJson getSettings();
+	void setSettings(ofJson settings);
+
+	std::string getLocation();
+
 	glm::ivec3& getDetectTRange();
 	glm::ivec3& getDetectThres();
 	std::string& getName();
 	std::string uint8_to_hex_string(uint8_t value);
 
+	bool motionDetected;
 	float targetDist;
 	uint8_t targetCount;
-	// Between 0-9 
-	uint8_t triggerSensitivity;
-	bool motionDetected;
+
+	uint8_t triggerSensitivityMin;
+	uint8_t triggerSensitivityMax;
+
+	std::string name;
+
+	// Saved...
+	// TODO: Will be better in a struct
+	std::string m_Location; // Will be used as ID
 	glm::ivec3 detectRange;
 	glm::ivec3 detectThres;
+	uint8_t triggerSensitivity;
 	std::string m_path;
 	uint8_t m_address;
-	std::string name;
 	// How often we speak to the device
-	float updateSec = 0.5;
-	float syncSec = 5;
+	float updateSec;
+	float syncSec;
 
 private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_lastUpdate;

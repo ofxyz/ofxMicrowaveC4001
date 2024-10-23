@@ -26,16 +26,7 @@ void ofApp::draw() {
 	// Define the ofWindow as a docking space
 	ImGui::DockSpaceOverViewport(0, NULL, ImGuiDockNodeFlags_PassthruCentralNode);
 
-	int i = 0;
-	static std::string sid;
-	// Todo: Maybe we should send the C4001Window the vector
-	// Then it can create a tab for every MmWaveSensor?
-	for(mmSensor* s : mmWaveSensors.getSensors() ) {
-		sid = "C4001Window" + std::to_string(++i);
-		ImGui::PushID(sid.c_str());
-		drawC4001Window(s);
-		ImGui::PopID();
-	}
+	drawC4001Window(mmWaveSensors.getSensors());
 
 	gui.end();
 
@@ -43,33 +34,72 @@ void ofApp::draw() {
 }
 
 //--------------------------------------------------------------
-void ofApp::drawC4001Window(mmSensor* sensor)
+void ofApp::drawC4001Window(std::vector<mmSensor*>& sensors)
 {
-	ImGui::Begin(sensor->getName().c_str());
-	static float scale = 1;
+	bool vissible = true;
+	ImGui::Begin("C4001 Sensors", &vissible, ImGuiWindowFlags_MenuBar);
 
-	ImGui::Checkbox("Motion detected", &sensor->motionDetected);
-	ImGui::Text("Target Distance: %.2f meters", sensor->targetDist);
-
-	ImVec2 pos = ImGui::GetCursorScreenPos();
-	ImVec2 pos2 = ImVec2(ImGui::GetContentRegionAvail().x * 0.5, 25);
-	float maxRadius = std::min(pos2.x, pos2.y) * 0.5;
-	float radius = ofClamp(ofMap(sensor->targetDist, 0, 5, 0, maxRadius), 0, maxRadius);
-	ImGui::GetWindowDrawList()->AddCircleFilled(pos+pos2, radius*scale, IM_COL32(0, 255, 0, 255), 20);
-
-	ImGui::Dummy({50,50});
-
-	ImGui::DragFloat("Scale", &scale, 0.25, 1, 10, "%.3f", ImGuiSliderFlags_Logarithmic );
-
-	if(ImGui::DragIntRange2("Detect", &sensor->detectRange.x, &sensor->detectRange.y, 1, 30, 2000, "Min: %d cm", "Max %d cm", ImGuiSliderFlags_AlwaysClamp)){
-		sensor->updateDevice();
+	if(ImGui::BeginMenuBar()) {
+		if(ImGui::BeginMenu("File")) {
+			if(ImGui::MenuItem("Save Settings")) {
+				ofSavePrettyJson("C4001_Sensors.json", mmWaveSensors.getSettings());
+			}
+			if(ImGui::MenuItem("Load Settings")) {
+				ofJson settings;
+				ofFile file(ofToDataPath("C4001_Sensors.json", true));
+				if(file.exists()){
+					file >> settings;
+					mmWaveSensors.setSettings(settings);
+				}
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
 	}
-	if(ImGui::SliderScalar("Trigger Distance", ImGuiDataType_U32, &sensor->detectRange.z, &sensor->detectRange.x, &sensor->detectRange.y, "%d cm", ImGuiSliderFlags_AlwaysClamp)){
-		sensor->updateDevice();
-	}
+
+	int i = 0;
+	static std::string sid;
+
+	for(mmSensor* sensor : sensors) {
+		sid = "C4001Window" + std::to_string(++i);
+		ImGui::PushID(sid.c_str());
+
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if(ImGui::CollapsingHeader(sensor->getName().c_str()))
+		{	
+			ImGui::Checkbox("Motion detected", &sensor->motionDetected);
+			ImGui::Text("Target Distance: %.2f meters", sensor->targetDist);
+
+			ImVec2 pos = ImGui::GetCursorScreenPos();
+			ImVec2 pos2 = ImVec2(ImGui::GetContentRegionAvail().x * 0.5, 25);
+			float maxRadius = 25;
+			float radius = ofClamp(ofMap(sensor->targetDist, 0, sensor->detectRange.y*0.01, 0, maxRadius), 0, maxRadius);
+			ImGui::GetWindowDrawList()->AddCircleFilled(pos+pos2, radius, IM_COL32(0, 0, 255, 255), 20);
+
+			ImGui::Dummy({25,50});
+
+			ImGui::Text("Detect Range:");
+			if(ImGui::DragIntRange2("", &sensor->detectRange.x, &sensor->detectRange.y, 1, 30, 2000, "Min %d cm", "Max %d cm", ImGuiSliderFlags_AlwaysClamp)){
+				sensor->updateDevice();
+			}
+			ImGui::Dummy({5,5});
+			ImGui::Text("Trigger Settings:");
+			ImGui::PushItemWidth(80);
+			if(ImGui::SliderScalar("Dist", ImGuiDataType_U32, &sensor->detectRange.z, &sensor->detectRange.x, &sensor->detectRange.y, "%d cm", ImGuiSliderFlags_AlwaysClamp)){
+				sensor->updateDevice();
+			}
+			if(ImGui::SliderScalar("Sens", ImGuiDataType_U8, &sensor->triggerSensitivity, &sensor->triggerSensitivityMin, &sensor->triggerSensitivityMax, "%d", ImGuiSliderFlags_AlwaysClamp)){
+				sensor->updateDevice();
+			}
+			ImGui::PopItemWidth();
+
+			bool inSync = sensor->isInSync();
+			ImGui::Checkbox("Synced", &inSync);
+
+		}
 	
-	bool inSync = sensor->isInSync();
-	ImGui::Checkbox("Synced", &inSync);
+		ImGui::PopID();
+	}
 
 	ImGui::End();
 

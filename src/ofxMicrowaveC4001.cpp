@@ -21,8 +21,42 @@ void ofxMicrowaveC4001::clearSensors()
     mmSensors.clear();
 }
 
-std::vector<mmSensor*>& ofxMicrowaveC4001::getSensors() {
+std::vector<mmSensor*>& ofxMicrowaveC4001::getSensors()
+{
 	return mmSensors;
+}
+
+ofJson ofxMicrowaveC4001::getSettings()
+{
+    ofJson settings;
+
+    for(mmSensor* s : mmSensors) {
+        settings.push_back(s->getSettings());
+    }
+
+    return settings;
+}
+
+void ofxMicrowaveC4001::setSettings(ofJson settings)
+{
+    for(ofJson j : settings) {
+        std::string location = "";
+        location = j.value("m_Location", location);
+        if(location != ""){
+            bool found = false;
+            for(mmSensor* s : mmSensors){
+                if(s->getLocation() == location) {
+                    found = true;
+                    s->setSettings(j);
+                    continue;
+                }
+            }
+            if(!found) {
+                mmSensors.push_back(new mmSensor(j.value("m_path", ""), j.value("m_address", 0)));
+                mmSensors[mmSensors.size()-1]->setSettings(j);
+            }
+        } 
+    }
 }
 
 void ofxMicrowaveC4001::setup()
@@ -54,18 +88,16 @@ void ofxMicrowaveC4001::setup()
     mmSensors.push_back(new mmSensor());
 #endif
 
-    for(auto& mms: mmSensors)
+    for(auto& s: mmSensors)
     {
-        mms->setup();
+        s->setup();
     }
 };
 
 void ofxMicrowaveC4001::update()
 {
-    // TODO: We should add a capacitor here
-    // This will slow down fast running apps 
-    for(auto& mms: mmSensors)
+    for(auto& s: mmSensors)
     {
-        mms->update();
+        s->update();
     }
 }

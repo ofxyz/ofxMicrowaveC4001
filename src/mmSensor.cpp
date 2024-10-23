@@ -7,6 +7,31 @@
 #define Sleep(x) usleep(1000 * x)
 #endif
 
+static void to_json(ofJson& j, const glm::ivec3& v)
+{
+    j = ofJson {
+        { "x", v.x},
+        { "y", v.y},
+        { "z", v.z}
+    };
+}
+
+static void from_json(ofJson& j, glm::ivec3& v)
+{
+    try {
+        j.at("x").get_to(v.x);
+        j.at("y").get_to(v.y);
+        j.at("z").get_to(v.z);
+    }
+    catch (const ofJson::exception& e) {
+        ofLog(OF_LOG_ERROR) << e.what();
+    }
+}
+
+std::string mmSensor::getLocation(){
+    return m_Location;
+}
+
 mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
 {
     if(path != "") {
@@ -14,7 +39,7 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
         m_isFake = false;
         fakeSensor = nullptr;
         device = new DFRobot_C4001_I2C(path.c_str(), address);
-        name = "MmWave Sensor (0x" + uint8_to_hex_string(address) +")";
+        name = "Wave Sensor (0x" + uint8_to_hex_string(address) +")";
 #else
         m_isFake = true;
         device = nullptr;
@@ -24,21 +49,27 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
         m_isFake = true;
         device = nullptr;
         fakeSensor = new MyToySensor();
-        name = "Fake MmWave Sensor";
+        name = "Fake Waves";
     }
-
+    
+    m_Location = path + "0x" + uint8_to_hex_string(address);
     // Init 
     m_path = path;
     m_address = address;
     targetDist = 0;
 	targetCount = 0;
-	triggerSensitivity = 5; // Between 0-9
+     // Between 0-9
+    triggerSensitivityMin = 0;
+    triggerSensitivityMax = 9;
+	triggerSensitivity = 5;
 	motionDetected = false;
     m_updateDevice = false;
     detectRange = { 30, 300, 240 };
 	detectThres = { 30, 150, 10 };
     m_lastUpdate = std::chrono::high_resolution_clock::now();
     m_lastSync   = std::chrono::high_resolution_clock::now();
+    updateSec = 0.06; // About every 15th frame
+	syncSec = 5;
     m_ForceSync = false;
 };
 
@@ -112,6 +143,38 @@ bool mmSensor::updateTrigSensitivity()
     return true;
 }
 
+ofJson mmSensor::getSettings()
+{
+    ofJson settings;
+
+    to_json(settings["detectRange"], detectRange);
+    to_json(settings["detectThres"], detectThres);
+    
+    settings["triggerSensitivity"] = triggerSensitivity;
+    settings["m_path"] = m_path;
+    settings["m_address"] = m_address;
+    settings["updateSec"] = updateSec;
+    settings["syncSec"] = syncSec;
+    settings["m_Location"] = m_Location;
+
+    return settings;
+}
+
+void mmSensor::setSettings(ofJson settings)
+{
+    from_json(settings["detectRange"], detectRange);
+    from_json(settings["detectThres"], detectThres);
+
+    triggerSensitivity = settings.value("triggerSensitivity", triggerSensitivity);
+    // TODO: If path or address is not the same reconnect.
+    // For now only saved to ID the sensor
+    // m_path = settings.value("m_path", m_path);
+    // m_address = settings.value("m_address", m_address);
+    updateSec = settings.value("updateSec", updateSec);
+    syncSec = settings.value("syncSec", syncSec); 
+    //m_Location = settings.value("m_Location", m_Location);    
+}
+
 glm::ivec3& mmSensor::getDetectTRange()
 {
 	return detectRange;
@@ -140,15 +203,17 @@ bool mmSensor::update()
         return true;
     }
 
-    float lastsync = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_lastSync).count();
-    if( (m_updateDevice && lastsync > syncSec) || m_ForceSync) {
-        m_lastSync = std::chrono::high_resolution_clock::now();
-        m_ForceSync = false;
-        bool r1 = updateDetectRange();
-        bool r2 = updateDetectThres();
-        bool r3 = updateTrigSensitivity();
-        if( r1 == true && r2 == true && r3 == true) {
-            m_updateDevice = false;
+    if(m_updateDevice || m_ForceSync) {
+        float lastsync = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_lastSync).count();
+        if(lastsync > syncSec || m_ForceSync) {
+            m_lastSync = std::chrono::high_resolution_clock::now();
+            m_ForceSync = false;
+            bool r1 = updateDetectRange();
+            bool r2 = updateDetectThres();
+            bool r3 = updateTrigSensitivity();
+            if( r1 == true && r2 == true && r3 == true) {
+                m_updateDevice = false;
+            }
         }
     }
 
@@ -162,7 +227,7 @@ bool mmSensor::update()
     }
     motionDetected = device->motionDetection();
 
-    ofLog(OF_LOG_VERBOSE) << "Target Count: " << (int)targetCount << "\n Current Distance" << targetDist;
+    ofLog(OF_LOG_VERBOSE) << "Target Count: " << (int)targetCount << " Current Distance " << targetDist;
     return true;
 }
 
