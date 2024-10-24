@@ -29,6 +29,7 @@ public:
 	bool updateDetectRange();
 	bool updateDetectThres();
 	bool updateTrigSensitivity();
+	bool updateKeepSensitivity();
 
 	ofJson getSettings();
 	void setSettings(ofJson settings);
@@ -44,8 +45,9 @@ public:
 	float targetDist;
 	uint8_t targetCount;
 
-	uint8_t triggerSensitivityMin;
-	uint8_t triggerSensitivityMax;
+	// Both keep and trigger sensitivity
+	uint8_t sensitivityMin;
+	uint8_t sensitivityMax;
 
 	std::string name;
 
@@ -55,6 +57,7 @@ public:
 	glm::ivec3 detectRange;
 	glm::ivec3 detectThres;
 	uint8_t triggerSensitivity;
+	uint8_t keepSensitivity;
 	std::string m_path;
 	uint8_t m_address;
 	// How often we speak to the device
