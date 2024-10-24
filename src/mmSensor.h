@@ -8,10 +8,9 @@
 #include "DFRobot_C4001.h"
 #else
 #include "Fake_C4001.h"
-#include "Toy_C4001.h"
-
 #endif
 
+#include "Toy_C4001.h"
 #include "ofJson.h"
 
 class mmSensor {
