@@ -7,12 +7,11 @@
 #include "ofxGPIO.h"
 #include "DFRobot_C4001.h"
 #else
-
-extern class DFRobot_C4001_I2C;
+#include "Fake_C4001.h"
+#include "Toy_C4001.h"
 
 #endif
 
-#include "MyToySensor.h"
 #include "ofJson.h"
 
 class mmSensor {
@@ -68,9 +67,8 @@ private:
 	bool m_ForceSync;
 	bool m_isFake;
 	bool m_updateDevice;
-#ifdef RPI
+
 	DFRobot_C4001_I2C* device;
-#endif
-	MyToySensor* fakeSensor;
+	Toy_C4001* toyDevice;
 
 };

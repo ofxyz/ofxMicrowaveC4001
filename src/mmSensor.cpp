@@ -37,21 +37,23 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
     if(path != "") {
 #ifdef RPI
         m_isFake = false;
-        fakeSensor = nullptr;
         device = new DFRobot_C4001_I2C(path.c_str(), address);
-        name = "Wave Sensor (0x" + uint8_to_hex_string(address) +")";
+		toyDevice = nullptr;
+        name = "Wave Sensor (0x" + uint8_to_hex_string(address) + ")";
 #else
         m_isFake = true;
-        device = nullptr;
-        fakeSensor = new MyToySensor("Fake "+path).c_str(), address);
+        device = new DFRobot_C4001_I2C(path.c_str(), address);
+        toyDevice = nullptr;
+        name = "Fake Sensor (0x" + uint8_to_hex_string(address) + ")";
 #endif
     } else {
+		ofLog(OF_LOG_WARNING) << "mmSensor: No path given, a fake sensor (C4001) will not be initialized ...";
         m_isFake = true;
         device = nullptr;
-        fakeSensor = new MyToySensor();
-        name = "Fake Waves";
+		toyDevice = new Toy_C4001();
+        name = "Toy Sensor (0x" + uint8_to_hex_string(address) + ")";
     }
-    
+ 
     m_Location = path + "0x" + uint8_to_hex_string(address);
     // Init 
     m_path = path;
@@ -84,6 +86,8 @@ void mmSensor::syncNow(){
 
 bool mmSensor::setup()
 {
+    if (m_isFake) return true;
+
     int i = 4;
     while (!device->begin() && i-- != 0)
     {
@@ -199,8 +203,7 @@ bool mmSensor::update()
     if(lastupdate > updateSec) {
         m_lastUpdate = std::chrono::high_resolution_clock::now();
     } else {
-        // All good ...
-        return true;
+		return true; // Not yet time to update, but all good.
     }
 
     if(m_updateDevice || m_ForceSync) {
@@ -217,17 +220,32 @@ bool mmSensor::update()
         }
     }
 
-    // GPIO access
-    ofLog(OF_LOG_VERBOSE) << "Getting data from C4001... ";
-    targetCount = device->getTargetNumber();
-    if(targetCount > 0) {
-        targetDist = device->getTargetRange();
-    } else {
-        targetDist = 0;
-    }
-    motionDetected = device->motionDetection();
+    // Get data from sensor
+	if (toyDevice != nullptr) {
+		targetCount = toyDevice->getTargetNumber();
+		if (targetCount > 0) {
+			targetDist = toyDevice->getTargetRange();
+		}
+		else {
+			targetDist = 0;
+		}
+		motionDetected = toyDevice->motionDetection();
+	}
+    else if (device != nullptr) {
+        // GPIO access
+		ofLog(OF_LOG_VERBOSE) << "Getting data from C4001... ";
+		targetCount = device->getTargetNumber();
+		if (targetCount > 0) {
+			targetDist = device->getTargetRange();
+		}
+		else {
+			targetDist = 0;
+		}
+		motionDetected = device->motionDetection();
 
-    ofLog(OF_LOG_VERBOSE) << "Target Count: " << (int)targetCount << " Current Distance " << targetDist;
+		ofLog(OF_LOG_VERBOSE) << "Target Count: " << (int)targetCount << " Current Distance " << targetDist;
+    }
+
     return true;
 }
 
@@ -240,7 +258,7 @@ std::string mmSensor::uint8_to_hex_string(uint8_t value)
 {
     std::stringstream ss;
 
-    ss << std::hex << std::setw(2) << static_cast<int>(value);
+    ss << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(value);
 
     return ss.str();
 }
