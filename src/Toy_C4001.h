@@ -5,10 +5,7 @@
 // Fake Sensor
 class Toy_C4001 {
 public:
-	Toy_C4001(std::string path = "long", uint8_t address = 0xBB) {
-		ofLog(OF_LOG_NOTICE) << "Toy_C4001: How beautiful the world is ...";
-		int x = 0; while (++x < 100) ofLog(OF_LOG_VERBOSE) << " ";
-	}
+	Toy_C4001(std::string path = "long", uint8_t address = 0x00) {}
 	~Toy_C4001() {}
 
 	typedef enum {

@@ -11,11 +11,16 @@ public:
 	void setup();
 	void update();
 	void clearSensors();
+	int scanAdd();
+	void addToySensor();
 	std::vector<mmSensor*> &getSensors();
 
 	ofJson getSettings();
 	void setSettings(ofJson settings);
 
 private:
+	int scanForDevices();
+	int addDevices();
+	std::vector<std::pair<std::string, uint8_t>> devices;
 	std::vector<mmSensor*> mmSensors;
 };

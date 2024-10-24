@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup() {
     ofSetFrameRate(30);
-    ofSetLogLevel(OF_LOG_VERBOSE);
+    ofSetLogLevel(OF_LOG_NOTICE);
 
     mmWaveSensors.setup();
 
@@ -52,6 +52,12 @@ void ofApp::drawC4001Window(std::vector<mmSensor*>& sensors)
                     mmWaveSensors.setSettings(settings);
                 }
             }
+			if(ImGui::MenuItem("Scan for new Devices")) {
+				mmWaveSensors.scanAdd();
+			}
+			if(ImGui::MenuItem("New fake Sensor")) {
+				mmWaveSensors.addToySensor();
+			}
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();
@@ -68,41 +74,53 @@ void ofApp::drawC4001Window(std::vector<mmSensor*>& sensors)
         if(ImGui::CollapsingHeader(sensor->getName().c_str()))
         {    
             ImGui::Checkbox("Motion detected", &sensor->motionDetected);
-            ImGui::Text("Target Distance: %.2f meters", sensor->targetDist);
+            ImGui::Text("Distance: %.2f meters", sensor->targetDist);
+			
+			float energy = (float)sensor->targetEnergy * 0.001;
+			ImGui::Text("Energy: %.2f", energy);
 
-            ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImVec2 pos2 = ImVec2(ImGui::GetContentRegionAvail().x * 0.5, 25);
-            float maxRadius = 25;
-            float radius = ofClamp(ofMap(sensor->targetDist, 0, sensor->detectRange.y*0.01, 0, maxRadius), 0, maxRadius);
-            ImGui::GetWindowDrawList()->AddCircleFilled(pos+pos2, radius, IM_COL32(0, 0, 255, 255), 20);
+			ImVec2 pos = ImGui::GetCursorScreenPos();
+			ImVec2 pos2 = ImVec2(ImGui::GetContentRegionAvail().x * 0.5, 25);
+			float maxRadius = 25;
+			float radius = ofClamp(ofMap(sensor->targetDist, 0, sensor->detectRange.y*0.01, 0, maxRadius), 0, maxRadius);
+			ImGui::GetWindowDrawList()->AddCircleFilled(pos+pos2, radius*sensor->zoom, IM_COL32(0, 0, 255, 255), 20);
 
             ImGui::Dummy({25,50});
+			
+			ImGui::PushItemWidth(100);
+			ImGui::SliderFloat("Zoom", &sensor->zoom, 1, 10, "%.2f", ImGuiSliderFlags_Logarithmic);
 
             ImGui::Text("Detect Range:");
-            if(ImGui::DragIntRange2("", &sensor->detectRange.x, &sensor->detectRange.y, 1, 30, 2000, "Min %d cm", "Max %d cm", ImGuiSliderFlags_AlwaysClamp)){
+            if(ImGui::DragIntRange2("cm", &sensor->detectRange.x, &sensor->detectRange.y, 1, 30, 2000, "Min %d", "Max %d", ImGuiSliderFlags_AlwaysClamp)){
                 sensor->updateDevice();
-            }
+            };
             ImGui::Dummy({5,5});
             ImGui::Text("Trigger Settings:");
-            ImGui::PushItemWidth(100);
-            if(ImGui::SliderScalar("Dist", ImGuiDataType_U32, &sensor->detectRange.z, &sensor->detectRange.x, &sensor->detectRange.y, "%d cm", ImGuiSliderFlags_AlwaysClamp)){
+            
+            if(ImGui::DragScalar("Dist", ImGuiDataType_U32, &sensor->detectRange.z, 1, &sensor->detectRange.x, &sensor->detectRange.y, "%d cm", ImGuiSliderFlags_AlwaysClamp)){
                 sensor->updateDevice();
-            }
-            if(ImGui::SliderScalar("Trig Sens", ImGuiDataType_U8, &sensor->triggerSensitivity, &sensor->sensitivityMin, &sensor->sensitivityMax, "%d", ImGuiSliderFlags_AlwaysClamp)){
+            };
+            if(ImGui::DragScalar("Trig Sens", ImGuiDataType_U8, &sensor->triggerSensitivity, 1, &sensor->sensitivityMin, &sensor->sensitivityMax, "%d", ImGuiSliderFlags_AlwaysClamp)){
                 sensor->updateDevice();
-            }
-            if(ImGui::SliderScalar("Keep Sens", ImGuiDataType_U8, &sensor->keepSensitivity, &sensor->sensitivityMin, &sensor->sensitivityMax, "%d", ImGuiSliderFlags_AlwaysClamp)){
+            };
+            if(ImGui::DragScalar("Keep Sens", ImGuiDataType_U8, &sensor->keepSensitivity, 1, &sensor->sensitivityMin, &sensor->sensitivityMax, "%d", ImGuiSliderFlags_AlwaysClamp)){
                 sensor->updateDevice();
-            }
+            };
+
             ImGui::PopItemWidth();
 
             bool inSync = sensor->isInSync();
             ImGui::Checkbox("Synced", &inSync);
 
-        }
+			ImGui::SameLine();
+			if(ImGui::Button("Delete")){
+				sensor->dead = true; 
+			};
+
+        };
     
         ImGui::PopID();
-    }
+    };
 
     ImGui::End();
 

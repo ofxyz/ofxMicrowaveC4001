@@ -30,6 +30,7 @@ public:
 	bool updateDetectThres();
 	bool updateTrigSensitivity();
 	bool updateKeepSensitivity();
+	bool updateDelay();
 
 	ofJson getSettings();
 	void setSettings(ofJson settings);
@@ -44,11 +45,14 @@ public:
 	bool motionDetected;
 	float targetDist;
 	uint8_t targetCount;
+	uint32_t targetEnergy;
 
 	// Both keep and trigger sensitivity
 	uint8_t sensitivityMin;
 	uint8_t sensitivityMax;
-
+	uint8_t triggerDelay;
+	uint16_t keepDelay;
+	float zoom;
 	std::string name;
 
 	// Saved...
@@ -63,7 +67,7 @@ public:
 	// How often we speak to the device
 	float updateMillis;
 	float syncMillis;
-
+	bool dead;
 private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_lastUpdate;
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_lastSync;

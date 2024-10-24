@@ -47,7 +47,7 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
         name = "Fake Sensor (0x" + uint8_to_hex_string(address) + ")";
 #endif
     } else {
-        ofLog(OF_LOG_WARNING) << "mmSensor: No path given, a fake sensor (C4001) will not be initialized ...";
+        ofLog(OF_LOG_NOTICE) << "mmSensor: No path given, a fake sensor (C4001) will be initialized ...";
         m_isFake = true;
         device = nullptr;
         toyDevice = new Toy_C4001();
@@ -56,13 +56,17 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
  
     m_Location = path + "0x" + uint8_to_hex_string(address);
     // Init 
+    dead = false;
     m_path = path;
     m_address = address;
     targetDist = 0;
     targetCount = 0;
+    targetEnergy = 0;
     // Between 0-9
     sensitivityMin = 0; // Should be define
     sensitivityMax = 9; // Should be define
+    triggerDelay = 0;
+	keepDelay = 4;
     triggerSensitivity = 3;
     keepSensitivity = 3;
     motionDetected = false;
@@ -73,6 +77,7 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
     m_lastSync   = std::chrono::high_resolution_clock::now();
     updateMillis = 15;
     syncMillis = 5000;
+    zoom = 1;
     m_ForceSync = false;
 };
 
@@ -116,16 +121,18 @@ bool mmSensor::setup()
         }
     }
 
+    //updateDelay();
     updateDetectRange();
     updateDetectThres();
     updateTrigSensitivity();
     updateKeepSensitivity();
-
+    device->setSensor(eStartSen);
     return true;
 }
 
 bool mmSensor::updateDetectRange()
 {
+    if (m_isFake) return true;
     ofLog(OF_LOG_VERBOSE) << "setDetectRange...";
     if (!device->setDetectThres(detectRange.x, detectRange.y, detectRange.z))
     {
@@ -137,6 +144,7 @@ bool mmSensor::updateDetectRange()
 
 bool mmSensor::updateDetectThres()
 {
+    if (m_isFake) return true;
     ofLog(OF_LOG_VERBOSE) << "setDetectThres...";
     if (!device->setDetectThres(detectThres.x, detectThres.y, detectThres.z))
     {
@@ -148,6 +156,7 @@ bool mmSensor::updateDetectThres()
 
 bool mmSensor::updateTrigSensitivity()
 {
+    if (m_isFake) return true;
     ofLog(OF_LOG_VERBOSE) << "setTrigSensitivity...";
     if (!device->setTrigSensitivity(triggerSensitivity))
     {
@@ -159,10 +168,23 @@ bool mmSensor::updateTrigSensitivity()
 
 bool mmSensor::updateKeepSensitivity()
 {
+    if (m_isFake) return true;
     ofLog(OF_LOG_VERBOSE) << "setKeepSensitivity...";
     if (!device->setKeepSensitivity(keepSensitivity))
     {
         ofLog(OF_LOG_NOTICE) << "Failed to setKeepSensitivity";
+        return false;
+    }
+    return true;
+}
+
+bool mmSensor::updateDelay()
+{
+    if (m_isFake) return true;
+    ofLog(OF_LOG_VERBOSE) << "setDelay...";
+    if (!device->setDelay(triggerDelay, keepDelay))
+    {
+        ofLog(OF_LOG_NOTICE) << "Failed to setDelay";
         return false;
     }
     return true;
@@ -174,9 +196,11 @@ ofJson mmSensor::getSettings()
 
     to_json(settings["detectRange"], detectRange);
     to_json(settings["detectThres"], detectThres);
-    
+
     settings["triggerSensitivity"] = triggerSensitivity;
     settings["keepSensitivity"] = keepSensitivity;
+    settings["triggerDelay"] = triggerDelay;
+    settings["keepdelay"] = keepDelay;
     settings["m_path"] = m_path;
     settings["m_address"] = m_address;
     settings["updateMillis"] = updateMillis;
@@ -193,6 +217,8 @@ void mmSensor::setSettings(ofJson settings)
 
     triggerSensitivity = settings.value("triggerSensitivity", triggerSensitivity);
     keepSensitivity = settings.value("keepSensitivity", keepSensitivity);
+    triggerDelay = settings.value("triggerDelay", triggerDelay);
+    keepDelay = settings.value("keepdelay", keepDelay);
     // TODO: If path or address is not the same reconnect.
     // For now only saved to ID the sensor
     // m_path = settings.value("m_path", m_path);
@@ -234,13 +260,25 @@ bool mmSensor::update()
         if(lastsync > syncMillis || m_ForceSync) {
             m_lastSync = std::chrono::high_resolution_clock::now();
             m_ForceSync = false;
+            bool r5 = updateDelay();
             bool r1 = updateDetectRange();
             bool r2 = updateDetectThres();
             bool r3 = updateTrigSensitivity();
             bool r4 = updateKeepSensitivity();
-            if( r1 == true && r2 == true && r3 == true && r4 == true) {
+           
+            if( r1 == true && r2 == true && r3 == true && r4 == true && r5 == true) {
                 m_updateDevice = false;
             }
+
+            // Make sure we are back on
+            /*
+            sSensorStatus_t data;
+            data = device->getStatus();
+            if (data.workMode != eStartSen)
+            {
+                device->setSensor(eStartSen);
+            }
+            */
         }
     }
 
@@ -254,20 +292,22 @@ bool mmSensor::update()
             targetDist = 0;
         }
         motionDetected = toyDevice->motionDetection();
+        //targetEnergy = toyDevice->getTargetEnergy();
     }
     else if (device != nullptr) {
         // GPIO access
-    ofLog(OF_LOG_VERBOSE) << "Getting data from C4001... ";
-    targetCount = device->getTargetNumber();
-    if (targetCount > 0) {
-        targetDist = device->getTargetRange();
-    }
-    else {
-        targetDist = 0;
-    }
-    motionDetected = device->motionDetection();
+        ofLog(OF_LOG_VERBOSE) << "Getting data from C4001... ";
+        targetCount = device->getTargetNumber();
+        if (targetCount > 0) {
+            targetDist = device->getTargetRange();
+        }
+        else {
+            targetDist = 0;
+        }
+        motionDetected = device->motionDetection();
+        targetEnergy = device->getTargetEnergy();
 
-    ofLog(OF_LOG_VERBOSE) << "Target Count: " << (int)targetCount << " Current Distance " << targetDist;
+        ofLog(OF_LOG_VERBOSE) << "Target Count: " << (int)targetCount << " Current Distance " << targetDist;
     }
 
     return true;
