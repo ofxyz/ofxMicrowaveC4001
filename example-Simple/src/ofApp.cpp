@@ -22,7 +22,7 @@ void ofApp::draw() {
 	} else {
 		ofDrawBitmapString(mmWaveSensors.getSensors()[0]->getName(), 50, 50);
 		float maxRadius = std::min(ofGetWidth(), ofGetHeight())*0.5;
-		float radius = ofMap(mmWaveSensors.getSensors()[0]->targetDist, 0, 5, 1, maxRadius);
+		float radius = ofMap(mmWaveSensors.getSensors()[0]->targetDist, 0, 5, 0, maxRadius);
 		ofSetColor(255,0,0);
 		ofDrawCircle(ofGetWidth()*0.5, ofGetHeight()*0.5, radius);
 	}
