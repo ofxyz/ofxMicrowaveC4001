@@ -20,6 +20,7 @@ public:
 	~mmSensor();
 
 	bool setup();
+	bool connect(int tries = 4);
 	bool update();
 	bool isFake();
 	bool isInSync();
@@ -58,8 +59,8 @@ public:
 	std::string m_path;
 	uint8_t m_address;
 	// How often we speak to the device
-	float updateSec;
-	float syncSec;
+	float updateMillis;
+	float syncMillis;
 
 private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_lastUpdate;

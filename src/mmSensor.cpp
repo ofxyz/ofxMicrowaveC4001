@@ -70,8 +70,8 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
 	detectThres = { 30, 150, 10 };
     m_lastUpdate = std::chrono::high_resolution_clock::now();
     m_lastSync   = std::chrono::high_resolution_clock::now();
-    updateSec = 0.06; // About every 15th frame
-	syncSec = 5;
+    updateMillis = 15;
+    syncMillis = 5000;
     m_ForceSync = false;
 };
 
@@ -84,27 +84,35 @@ void mmSensor::syncNow(){
     m_ForceSync = true;
 }
 
-bool mmSensor::setup()
+bool mmSensor::connect(int tries /*= 4*/)
 {
     if (m_isFake) return true;
 
-    int i = 4;
-    while (!device->begin() && i-- != 0)
-    {
-        ofLog(OF_LOG_NOTICE) << "Waiting to connect to sensor ...";
-        Sleep(1000);
-    }
-    if(i == 0) {
-        ofLog(OF_LOG_WARNING) << "Could not connect to sensor (timeout) ...";
-        return false;
-    }
+	while (!device->begin() && tries-- != 0)
+	{
+		ofLog(OF_LOG_NOTICE) << "Waiting to connect to sensor ...";
+		Sleep(1000);
+	}
+	if (tries == 0) {
+		ofLog(OF_LOG_WARNING) << "Could not connect to sensor (timeout) ...";
+		return false;
+	}
 
     ofLog(OF_LOG_NOTICE) << "Sensor connected ...";
+    return true;
+}
 
-    ofLog(OF_LOG_VERBOSE) << "setSensorMode...";
-    if (!device->setSensorMode(eSpeedMode))
-    {
-        ofLog(OF_LOG_NOTICE) << "Failed to setSensorMode";
+bool mmSensor::setup()
+{
+    if (m_isFake) return true;
+    if(!connect()) return false;
+
+    if (!m_isFake) {
+		ofLog(OF_LOG_VERBOSE) << "setSensorMode...";
+		if (!device->setSensorMode(eSpeedMode))
+		{
+			ofLog(OF_LOG_NOTICE) << "Failed to setSensorMode";
+		}
     }
 
     updateDetectRange();
@@ -157,8 +165,8 @@ ofJson mmSensor::getSettings()
     settings["triggerSensitivity"] = triggerSensitivity;
     settings["m_path"] = m_path;
     settings["m_address"] = m_address;
-    settings["updateSec"] = updateSec;
-    settings["syncSec"] = syncSec;
+    settings["updateMillis"] = updateMillis;
+    settings["syncMillis"] = syncMillis;
     settings["m_Location"] = m_Location;
 
     return settings;
@@ -174,8 +182,8 @@ void mmSensor::setSettings(ofJson settings)
     // For now only saved to ID the sensor
     // m_path = settings.value("m_path", m_path);
     // m_address = settings.value("m_address", m_address);
-    updateSec = settings.value("updateSec", updateSec);
-    syncSec = settings.value("syncSec", syncSec); 
+    updateMillis = settings.value("updateMillis", updateMillis);
+    syncMillis = settings.value("syncMillis", syncMillis);
     //m_Location = settings.value("m_Location", m_Location);    
 }
 
@@ -199,16 +207,16 @@ void mmSensor::updateDevice(){
 
 bool mmSensor::update()
 {
-    float lastupdate = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_lastUpdate).count();
-    if(lastupdate > updateSec) {
+    float lastupdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastUpdate).count();
+    if(lastupdate > updateMillis) {
         m_lastUpdate = std::chrono::high_resolution_clock::now();
     } else {
 		return true; // Not yet time to update, but all good.
     }
 
     if(m_updateDevice || m_ForceSync) {
-        float lastsync = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_lastSync).count();
-        if(lastsync > syncSec || m_ForceSync) {
+        float lastsync = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastSync).count();
+        if(lastsync > syncMillis || m_ForceSync) {
             m_lastSync = std::chrono::high_resolution_clock::now();
             m_ForceSync = false;
             bool r1 = updateDetectRange();

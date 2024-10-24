@@ -26,7 +26,7 @@ public:
 	float getTargetRange() {
 		/* TODO Better: This is a placeholder */
 		float fakePos = ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, detectRange.x, detectRange.y);
-		return ((fakePos > detectRange.x && fakePos < detectRange.y)) ? fakePos : 0;
+		return ((fakePos > detectRange.x && fakePos < detectRange.y)) ? fakePos*0.01 : 0;
 	}
 
 	bool setSensorMode(eMode_t mode) {
@@ -43,11 +43,11 @@ public:
 
 	// Boolean Gates
 	int getTargetNumber() {
-		return (ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, detectRange.x, detectRange.y) > detectRange.z) ? 1 : 0;
+		return (ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, detectRange.x, detectRange.y) < detectRange.z) ? 1 : 0;
 	}
 
 	int motionDetection() {
-		return (ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, detectRange.x, detectRange.y) > detectRange.z) ? 1 : 0;
+		return (ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, detectRange.x, detectRange.y) < detectRange.z) ? 1 : 0;
 	}
 
 };
