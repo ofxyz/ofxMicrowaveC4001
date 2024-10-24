@@ -86,7 +86,8 @@ mmSensor::~mmSensor()
     if(device != nullptr) delete device;
 };
 
-void mmSensor::syncNow(){
+void mmSensor::syncNow()
+{
     m_ForceSync = true;
 }
 
@@ -133,10 +134,10 @@ bool mmSensor::setup()
 bool mmSensor::updateDetectRange()
 {
     if (m_isFake) return true;
-    ofLog(OF_LOG_VERBOSE) << "setDetectRange...";
-    if (!device->setDetectThres(detectRange.x, detectRange.y, detectRange.z))
+    ofLog(OF_LOG_VERBOSE) << "setDetectionRange...";
+    if (!device->setDetectionRange(detectRange.x, detectRange.y, detectRange.z))
     {
-        ofLog(OF_LOG_NOTICE) << "Failed to setDetectThres";
+        ofLog(OF_LOG_NOTICE) << "Failed to setDetectionRange";
         return false;
     }
     return true;
@@ -200,7 +201,7 @@ ofJson mmSensor::getSettings()
     settings["triggerSensitivity"] = triggerSensitivity;
     settings["keepSensitivity"] = keepSensitivity;
     settings["triggerDelay"] = triggerDelay;
-    settings["keepdelay"] = keepDelay;
+    settings["keepDelay"] = keepDelay;
     settings["m_path"] = m_path;
     settings["m_address"] = m_address;
     settings["updateMillis"] = updateMillis;
@@ -218,7 +219,7 @@ void mmSensor::setSettings(ofJson settings)
     triggerSensitivity = settings.value("triggerSensitivity", triggerSensitivity);
     keepSensitivity = settings.value("keepSensitivity", keepSensitivity);
     triggerDelay = settings.value("triggerDelay", triggerDelay);
-    keepDelay = settings.value("keepdelay", keepDelay);
+    keepDelay = settings.value("keepDelay", keepDelay);
     // TODO: If path or address is not the same reconnect.
     // For now only saved to ID the sensor
     // m_path = settings.value("m_path", m_path);
@@ -238,11 +239,13 @@ glm::ivec3& mmSensor::getDetectThres()
     return detectThres;
 }
 
-bool mmSensor::isInSync(){
+bool mmSensor::isInSync()
+{
     return !m_updateDevice;
 }
 
-void mmSensor::updateDevice(){
+void mmSensor::updateDevice()
+{
     m_updateDevice = true;
 }
 
