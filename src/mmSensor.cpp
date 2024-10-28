@@ -285,6 +285,8 @@ bool mmSensor::update()
         }
     }
 
+	bool newMotionDetected = false;
+
     // Get data from sensor
     if (toyDevice != nullptr) {
         targetCount = toyDevice->getTargetNumber();
@@ -294,8 +296,14 @@ bool mmSensor::update()
         else {
             targetDist = 0;
         }
-        motionDetected = toyDevice->motionDetection();
-        //targetEnergy = toyDevice->getTargetEnergy();
+
+        newMotionDetected = (bool)toyDevice->motionDetection();
+		if (motionDetected == false && newMotionDetected == true) {
+			callTriggerCallbacks();
+		}
+		motionDetected = newMotionDetected;
+
+        targetEnergy = toyDevice->getTargetEnergy();
     }
     else if (device != nullptr) {
         // GPIO access
@@ -307,13 +315,29 @@ bool mmSensor::update()
         else {
             targetDist = 0;
         }
-        motionDetected = device->motionDetection();
+        newMotionDetected = (device->motionDetection() > 0);
+		if (newMotionDetected == true && motionDetected == false) {
+			callTriggerCallbacks();
+		}
+		motionDetected = newMotionDetected;
         targetEnergy = device->getTargetEnergy();
 
         ofLog(OF_LOG_VERBOSE) << "Target Count: " << (int)targetCount << " Current Distance " << targetDist;
     }
 
     return true;
+}
+
+void mmSensor::addTriggerCallback(void (*funcPtr)(void*), void* pOwner)
+{
+    m_vTriggerCallbacks.push_back(std::make_pair(pOwner, funcPtr));
+}
+
+void mmSensor::callTriggerCallbacks()
+{
+	for (auto& tcb : m_vTriggerCallbacks) {
+		tcb.second(tcb.first);
+	}
 }
 
 bool mmSensor::isFake()

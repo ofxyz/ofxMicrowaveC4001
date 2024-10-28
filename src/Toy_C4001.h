@@ -2,28 +2,30 @@
 
 #include "ofMain.h"
 
+#ifndef __DFROBOT_C4001_H__
+typedef enum {
+	eExitMode = 0x00,
+	eSpeedMode = 0x01,
+} eMode_t;
+
+typedef enum {
+	eStartSen = 0x55,
+	eStopSen = 0x33,
+	eResetSen = 0xCC,
+	eRecoverSen = 0xAA,
+	eSaveParams = 0x5C,
+	eChangeMode = 0x3B,
+}eSetMode_t;
+#endif
+
 // Fake Sensor
 class Toy_C4001 {
 public:
 	Toy_C4001(std::string path = "long", uint8_t address = 0x00) {}
 	~Toy_C4001() {}
 
-	typedef enum {
-		eExitMode = 0x00,
-		eSpeedMode = 0x01,
-	} eMode_t;
-
-	typedef enum {
-		eStartSen = 0x55,
-		eStopSen = 0x33,
-		eResetSen = 0xCC,
-		eRecoverSen = 0xAA,
-		eSaveParams = 0x5C,
-		eChangeMode = 0x3B,
-	}eSetMode_t;
-
 	glm::ivec3 detectRange = { 30, 300, 240 };
-	glm::ivec3 detectThres = { 30, 150, 10 };
+	glm::ivec3 detectThres = { 100, 150, 10 };
 	uint8_t triggerSensitivity = 1;
 	uint8_t keepSensitivity = 1;
 	uint8_t trigDelay = 0;
@@ -57,7 +59,7 @@ public:
 	float getTargetRange() {
 		/* TODO Better: This is a placeholder */
 		float fakePos = ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, detectRange.x, detectRange.y);
-		return ((fakePos > detectRange.x && fakePos < detectRange.y)) ? fakePos * 0.01 : 0;
+		return (fakePos < detectRange.z) ? fakePos * 0.01 : 0;
 	}
 
 	bool setSensorMode(eMode_t mode) {
@@ -78,11 +80,11 @@ public:
 
 	// Boolean Gates
 	int getTargetNumber() {
-		return (ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, detectRange.x, detectRange.y) < detectRange.z) ? 1 : 0;
+		return (getTargetRange() > 0) ? 1 : 0;
 	}
 
 	int motionDetection() {
-		return (ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, detectRange.x, detectRange.y) < detectRange.z) ? 1 : 0;
+		return (getTargetRange() > 0) ? 1 : 0;
 	}
 
 	uint32_t getTargetEnergy(void) {

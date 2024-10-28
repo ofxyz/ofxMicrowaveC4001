@@ -21,6 +21,10 @@ public:
 	bool setup();
 	bool connect(int tries = 4);
 	bool update();
+	
+	void addTriggerCallback(void (*funcPtr)(void*), void* pOwner);
+	void callTriggerCallbacks();
+
 	bool isFake();
 	bool isInSync();
 	void syncNow();
@@ -78,4 +82,5 @@ private:
 	DFRobot_C4001_I2C* device;
 	Toy_C4001* toyDevice;
 
+	std::vector<std::pair<void*, void (*)(void*)>> m_vTriggerCallbacks;
 };
