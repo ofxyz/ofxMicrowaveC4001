@@ -21,10 +21,10 @@ typedef enum {
 // Fake Sensor
 class Toy_C4001 {
 public:
-	Toy_C4001(std::string path = "long", uint8_t address = 0x00) {}
+	Toy_C4001(std::string path = "Fake", uint8_t address = 0x00) {}
 	~Toy_C4001() {}
 
-	glm::ivec3 detectRange = { 30, 300, 240 };
+	glm::ivec3 detectRange = { 30, 300, 150 };
 	glm::ivec3 detectThres = { 100, 150, 10 };
 	uint8_t triggerSensitivity = 1;
 	uint8_t keepSensitivity = 1;
@@ -40,7 +40,6 @@ public:
 	}
 
 	bool begin() {
-		ofLog(OF_LOG_VERBOSE) << "Fake_C4001: I am alive!";
 		return true;
 	}
 
@@ -49,6 +48,7 @@ public:
 		return true;
 	}
 
+	// Centimeters
 	bool setDetectionRange(uint16_t min, uint16_t max, uint16_t trig) {
 		detectRange.x = min;
 		detectRange.y = max;
@@ -56,10 +56,9 @@ public:
 		return true;
 	}
 
+	// Meters
 	float getTargetRange() {
-		/* TODO Better: This is a placeholder */
-		float fakePos = ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, detectRange.x, detectRange.y);
-		return (fakePos < detectRange.z) ? fakePos * 0.01 : 0;
+		return ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, detectRange.x, detectRange.y)*0.01;
 	}
 
 	bool setSensorMode(eMode_t mode) {
@@ -80,14 +79,14 @@ public:
 
 	// Boolean Gates
 	int getTargetNumber() {
-		return (getTargetRange() > 0) ? 1 : 0;
+		return (ofNoise(ofGetElapsedTimef()) > 0.5) ? 1 : 0;
 	}
 
 	int motionDetection() {
-		return (getTargetRange() > 0) ? 1 : 0;
+		return (getTargetRange() < (detectRange.z*0.01)) ? 0 : 1;
 	}
 
 	uint32_t getTargetEnergy(void) {
-		return 0; // TODO: Implement this
+		return (getTargetNumber() > 0)? ofNoise(ofGetElapsedTimef())*1000 : 0;
 	}
 };

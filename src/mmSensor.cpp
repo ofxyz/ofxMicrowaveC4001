@@ -37,20 +37,20 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
     if(path != "") {
 #ifdef RPI
         m_isFake = false;
-        device = new DFRobot_C4001_I2C(path.c_str(), address);
         toyDevice = nullptr;
+        device = new DFRobot_C4001_I2C(path.c_str(), address);
         name = "Wave Sensor (0x" + uint8_to_hex_string(address) + ")";
 #else
         m_isFake = true;
+		toyDevice = nullptr;
         device = new DFRobot_C4001_I2C(path.c_str(), address);
-        toyDevice = nullptr;
         name = "Fake Sensor (0x" + uint8_to_hex_string(address) + ")";
 #endif
     } else {
         ofLog(OF_LOG_NOTICE) << "mmSensor: No path given, a fake sensor (C4001) will be initialized ...";
         m_isFake = true;
-        device = nullptr;
         toyDevice = new Toy_C4001();
+        device = static_cast<DFRobot_C4001_I2C*>(toyDevice);
         name = "Toy Sensor (0x" + uint8_to_hex_string(address) + ")";
     }
  
@@ -111,7 +111,6 @@ bool mmSensor::connect(int tries /*= 4*/)
 
 bool mmSensor::setup()
 {
-    if (m_isFake) return true;
     if(!connect()) return false;
 
     if (!m_isFake) {
@@ -122,13 +121,24 @@ bool mmSensor::setup()
         }
     }
 
-    //updateDelay();
+    updateDelay();
     updateDetectRange();
     updateDetectThres();
     updateTrigSensitivity();
     updateKeepSensitivity();
     device->setSensor(eStartSen);
     return true;
+}
+
+bool mmSensor::setup(void (*callbackPtr)(void*), void* pOwner)
+{
+
+    if (setup()) {
+        addTriggerCallback(callbackPtr, pOwner);
+        return true;
+    }
+
+    return false;
 }
 
 bool mmSensor::updateDetectRange()
@@ -157,20 +167,19 @@ bool mmSensor::updateDetectThres()
 
 bool mmSensor::updateTrigSensitivity()
 {
-    if (m_isFake) return true;
-    ofLog(OF_LOG_VERBOSE) << "setTrigSensitivity...";
-    if (!device->setTrigSensitivity(triggerSensitivity))
+    if (device != nullptr)
     {
-        ofLog(OF_LOG_NOTICE) << "Failed to setTrigSensitivity";
-        return false;
+        if (!device->setTrigSensitivity(triggerSensitivity))
+        {
+            ofLog(OF_LOG_NOTICE) << "mmSensor: Failed to setTrigSensitivity";
+            return false;
+        }
+        return true;
     }
-    return true;
 }
 
 bool mmSensor::updateKeepSensitivity()
 {
-    if (m_isFake) return true;
-    ofLog(OF_LOG_VERBOSE) << "setKeepSensitivity...";
     if (!device->setKeepSensitivity(keepSensitivity))
     {
         ofLog(OF_LOG_NOTICE) << "Failed to setKeepSensitivity";
@@ -251,6 +260,11 @@ void mmSensor::updateDevice()
 
 bool mmSensor::update()
 {
+	if (device == nullptr) {
+		ofLog(OF_LOG_ERROR) << "mmSensor: Device points to NULL";
+		return false;
+	}
+
     float lastupdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastUpdate).count();
     if(lastupdate > updateMillis) {
         m_lastUpdate = std::chrono::high_resolution_clock::now();
@@ -287,26 +301,8 @@ bool mmSensor::update()
 
 	bool newMotionDetected = false;
 
-    // Get data from sensor
-    if (toyDevice != nullptr) {
-        targetCount = toyDevice->getTargetNumber();
-        if (targetCount > 0) {
-            targetDist = toyDevice->getTargetRange();
-        }
-        else {
-            targetDist = 0;
-        }
-
-        newMotionDetected = (bool)toyDevice->motionDetection();
-		if (motionDetected == false && newMotionDetected == true) {
-			callTriggerCallbacks();
-		}
-		motionDetected = newMotionDetected;
-
-        targetEnergy = toyDevice->getTargetEnergy();
-    }
-    else if (device != nullptr) {
-        // GPIO access
+    if (device != nullptr) {
+        // [POSSIBLY FAKE] GPIO access 
         ofLog(OF_LOG_VERBOSE) << "Getting data from C4001... ";
         targetCount = device->getTargetNumber();
         if (targetCount > 0) {

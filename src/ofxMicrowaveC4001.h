@@ -9,6 +9,7 @@ public:
 	ofxMicrowaveC4001();
 	~ofxMicrowaveC4001();
 	void setup();
+	void setup(void (*funcPtr)(void*), void* pOwner);
 	void update();
 	void clearSensors();
 	int scanAdd();
@@ -23,4 +24,5 @@ private:
 	int addDevices();
 	std::vector<std::pair<std::string, uint8_t>> devices;
 	std::vector<mmSensor*> mmSensors;
+	std::vector<std::pair<void*, void (*)(void*)>> m_vTriggerCallbacks;
 };

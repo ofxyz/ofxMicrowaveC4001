@@ -19,6 +19,7 @@ public:
 	~mmSensor();
 
 	bool setup();
+	bool setup(void (*callbackPtr)(void*), void* pOwner);
 	bool connect(int tries = 4);
 	bool update();
 	

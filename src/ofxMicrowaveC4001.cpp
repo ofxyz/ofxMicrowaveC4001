@@ -80,6 +80,9 @@ int ofxMicrowaveC4001::addDevices()
         if(!exist){
             mmSensors.push_back(new mmSensor(d.first.c_str(), d.second));
             mmSensors[mmSensors.size()-1]->setup();
+			for (auto& cb : m_vTriggerCallbacks) {
+				mmSensors[mmSensors.size() - 1]->addTriggerCallback(cb.second, cb.first);
+			}
             addedCount++;
         }
     }
@@ -92,6 +95,13 @@ void ofxMicrowaveC4001::setup()
 {
     if(scanAdd() == 0) addToySensor();
 };
+
+void ofxMicrowaveC4001::setup(void (*funcPtr)(void*), void* pOwner)
+{
+    // TODO: Maybe change order in pair the same as pass in.
+    m_vTriggerCallbacks.push_back(std::make_pair(pOwner, funcPtr));
+    setup();
+}
 
 void ofxMicrowaveC4001::update()
 {
@@ -116,6 +126,9 @@ void ofxMicrowaveC4001::addToySensor()
 {
     mmSensors.push_back(new mmSensor());
     mmSensors[mmSensors.size()-1]->setup();
+    for(auto& cb : m_vTriggerCallbacks) {
+        mmSensors[mmSensors.size() - 1]->addTriggerCallback(cb.second, cb.first);
+    }
 }
 
 int ofxMicrowaveC4001::scanForDevices()
