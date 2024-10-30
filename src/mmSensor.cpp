@@ -144,8 +144,14 @@ bool mmSensor::setup(void (*callbackPtr)(void*), void* pOwner)
 
 bool mmSensor::updateDetectRange()
 {
+	// Make sure the data is in range
+	detectRange.x = ofClamp(detectRange.x, 30, 2000);
+	detectRange.y = ofClamp(detectRange.y, 240, 2000);
+	detectRange.z = ofClamp(detectRange.z, 240, 2000);
+
     if (m_isFake) return true;
     ofLog(OF_LOG_VERBOSE) << "setDetectionRange...";
+
     if (!device->setDetectionRange(detectRange.x, detectRange.y, detectRange.z))
     {
         ofLog(OF_LOG_NOTICE) << "Failed to setDetectionRange";
@@ -156,8 +162,15 @@ bool mmSensor::updateDetectRange()
 
 bool mmSensor::updateDetectThres()
 {
+	// Make sure the data is in range
+    detectThres.x = ofClamp(detectThres.x, 30, 2000);
+    detectThres.y = ofClamp(detectThres.y, 240, 2000);
+    detectThres.z = ofClamp(detectThres.z, 0, 65535);
+
     if (m_isFake) return true;
+
     ofLog(OF_LOG_VERBOSE) << "setDetectThres...";
+
     if (!device->setDetectThres(detectThres.x, detectThres.y, detectThres.z))
     {
         ofLog(OF_LOG_NOTICE) << "Failed to setDetectThres";
@@ -168,11 +181,13 @@ bool mmSensor::updateDetectThres()
 
 bool mmSensor::updateTrigSensitivity()
 {
+    triggerSensitivity = ofClamp(triggerSensitivity, 0, 9);
+
     if (m_isFake) return true;
     
     if (!device->setTrigSensitivity(triggerSensitivity))
-    {
-        ofLog(OF_LOG_NOTICE) << "mmSensor: Failed to setTrigSensitivity";
+	{
+		ofLog(OF_LOG_NOTICE) << "mmSensor: Failed to setTrigSensitivity";
         return false;
     }
     return true;
@@ -180,6 +195,8 @@ bool mmSensor::updateTrigSensitivity()
 
 bool mmSensor::updateKeepSensitivity()
 {
+    keepSensitivity = ofClamp(keepSensitivity, 0, 9);
+
     if (m_isFake) return true;
     if (!device->setKeepSensitivity(keepSensitivity))
     {
@@ -191,6 +208,9 @@ bool mmSensor::updateKeepSensitivity()
 
 bool mmSensor::updateDelay()
 {
+	triggerDelay = ofClamp(triggerDelay, 0, 200);
+    keepDelay = ofClamp(keepDelay, 4, 3000);
+
     if (m_isFake) return true;
     ofLog(OF_LOG_VERBOSE) << "setDelay...";
     if (!device->setDelay(triggerDelay, keepDelay))
