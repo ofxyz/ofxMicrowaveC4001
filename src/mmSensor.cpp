@@ -50,7 +50,7 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
         ofLog(OF_LOG_NOTICE) << "mmSensor: No path given, a fake sensor (C4001) will be initialized ...";
         m_isFake = true;
         toyDevice = new Toy_C4001();
-        device = static_cast<DFRobot_C4001_I2C*>(toyDevice);
+        device = (DFRobot_C4001_I2C*)toyDevice;
         name = "Toy Sensor (0x" + uint8_to_hex_string(address) + ")";
     }
  
@@ -126,7 +126,8 @@ bool mmSensor::setup()
     updateDetectThres();
     updateTrigSensitivity();
     updateKeepSensitivity();
-    device->setSensor(eStartSen);
+    if (m_isFake == false)
+        device->setSensor(eStartSen);
     return true;
 }
 
@@ -167,19 +168,19 @@ bool mmSensor::updateDetectThres()
 
 bool mmSensor::updateTrigSensitivity()
 {
-    if (device != nullptr)
+    if (m_isFake) return true;
+    
+    if (!device->setTrigSensitivity(triggerSensitivity))
     {
-        if (!device->setTrigSensitivity(triggerSensitivity))
-        {
-            ofLog(OF_LOG_NOTICE) << "mmSensor: Failed to setTrigSensitivity";
-            return false;
-        }
-        return true;
+        ofLog(OF_LOG_NOTICE) << "mmSensor: Failed to setTrigSensitivity";
+        return false;
     }
+    return true;
 }
 
 bool mmSensor::updateKeepSensitivity()
 {
+    if (m_isFake) return true;
     if (!device->setKeepSensitivity(keepSensitivity))
     {
         ofLog(OF_LOG_NOTICE) << "Failed to setKeepSensitivity";
