@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string>
-#ifdef USE_GPIO
+#ifndef WIN32
 #include <unistd.h>
 #include "i2c.h"
 #endif
@@ -417,7 +417,7 @@ private:
 	virtual int16_t readReg(uint8_t reg, uint8_t* data, uint8_t len) = 0;
 };
 
-#ifdef USE_GPIO
+#ifndef WIN32
 class DFRobot_C4001_I2C : public DFRobot_C4001 {
 public:
 	DFRobot_C4001_I2C(const char* deviceName, uint8_t addr = DEVICE_ADDR_0);
@@ -430,7 +430,7 @@ private:
 	I2c* i2c;
 	std::string path;
 };
-#else
+#endif
 class DFRobot_C4001_DUMMY : public DFRobot_C4001 {
 public:
 	DFRobot_C4001_DUMMY(const char* deviceName, uint8_t addr = DEVICE_ADDR_0);
@@ -442,5 +442,3 @@ protected:
 private:
 	std::string path;
 };
-
-#endif

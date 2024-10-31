@@ -9,7 +9,7 @@
  * @url https://github.com/DFRobot/DFRobot_C4001
  */
 #include "DFRobot_C4001.h"
-#ifdef USE_GPIO
+#ifndef WIN32
 #define sleep(x) usleep(1000 * x)
 #else
 #include <windows.h>
@@ -797,7 +797,7 @@ bool DFRobot_C4001::sensorStop(void)
 
 	}
 }
-#ifdef USE_GPIO
+#ifndef WIN32
 DFRobot_C4001_I2C::DFRobot_C4001_I2C(const char* deviceName, uint8_t addr)
 {
 	i2c = nullptr;
