@@ -77,6 +77,7 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
 	syncMillis = 5000;
 	zoom = 1;
 	m_ForceSync = false;
+	setup();
 };
 
 mmSensor::~mmSensor()
