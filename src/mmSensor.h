@@ -5,12 +5,12 @@
 #if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_7__)
 #define RPI
 #include "ofxGPIO.h"
-#include "DFRobot_C4001.h"
-#else
-#include "Fake_C4001.h"
-#endif
 
+#else
+#endif
+#include "DFRobot_C4001.h"
 #include "Toy_C4001.h"
+
 #include "ofJson.h"
 
 class mmSensor {
@@ -22,7 +22,7 @@ public:
 	bool setup(void (*callbackPtr)(void*), void* pOwner);
 	bool connect(int tries = 4);
 	bool update();
-	
+
 	void addTriggerCallback(void (*funcPtr)(void*), void* pOwner);
 	void callTriggerCallbacks();
 
@@ -80,8 +80,7 @@ private:
 	bool m_isFake;
 	bool m_updateDevice;
 
-	DFRobot_C4001_I2C* device;
-	Toy_C4001* toyDevice;
+	DFRobot_C4001* device;
 
 	std::vector<std::pair<void*, void (*)(void*)>> m_vTriggerCallbacks;
 };

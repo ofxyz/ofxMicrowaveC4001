@@ -2,7 +2,7 @@
 
 #include "mmSensor.h"
 #include "ofJson.h"
-
+#include "IBaseSensor.h"
 class ofxMicrowaveC4001
 {
 public:
@@ -14,7 +14,7 @@ public:
 	void clearSensors();
 	int scanAdd();
 	void addToySensor();
-	std::vector<mmSensor*> &getSensors();
+	std::vector<mmSensor*>& getSensors();
 
 	ofJson getSettings();
 	void setSettings(ofJson settings);

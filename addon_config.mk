@@ -95,8 +95,12 @@ vs:
 	
 linuxarmv6l:
 	ADDON_DEPENDENCIES = ofxGPIO
+	ADDON_CPPFLAGS = -DUSE_GPIO
+	
 linuxarmv7l:
 	ADDON_DEPENDENCIES = ofxGPIO
+	ADDON_CPPFLAGS = -DUSE_GPIO
+	
 android/armeabi:	
 android/armeabi-v7a:	
 osx:
