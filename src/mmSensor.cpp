@@ -119,13 +119,14 @@ bool mmSensor::setup()
 		}
 	}
 
-	updateDelay();
-	updateDetectRange();
-	updateDetectThres();
-	updateTrigSensitivity();
-	updateKeepSensitivity();
-	device->setSensor(eStartSen);
-	return true;
+    updateDelay();
+    updateDetectRange();
+    updateDetectThres();
+    updateTrigSensitivity();
+    updateKeepSensitivity();
+    if (m_isFake == false)
+        device->setSensor(eStartSen);
+    return true;
 }
 
 bool mmSensor::setup(void (*callbackPtr)(void*), void* pOwner)
@@ -141,61 +142,81 @@ bool mmSensor::setup(void (*callbackPtr)(void*), void* pOwner)
 
 bool mmSensor::updateDetectRange()
 {
-	if (m_isFake) return true;
-	ofLog(OF_LOG_VERBOSE) << "setDetectionRange...";
-	if (!device->setDetectionRange(detectRange.x, detectRange.y, detectRange.z))
-	{
-		ofLog(OF_LOG_NOTICE) << "Failed to setDetectionRange";
-		return false;
-	}
-	return true;
+	// Make sure the data is in range
+	detectRange.x = ofClamp(detectRange.x, 30, 2000);
+	detectRange.y = ofClamp(detectRange.y, 240, 2000);
+	detectRange.z = ofClamp(detectRange.z, 240, 2000);
+
+    if (m_isFake) return true;
+    ofLog(OF_LOG_VERBOSE) << "setDetectionRange...";
+
+    if (!device->setDetectionRange(detectRange.x, detectRange.y, detectRange.z))
+    {
+        ofLog(OF_LOG_NOTICE) << "Failed to setDetectionRange";
+        return false;
+    }
+    return true;
 }
 
 bool mmSensor::updateDetectThres()
 {
-	if (m_isFake) return true;
-	ofLog(OF_LOG_VERBOSE) << "setDetectThres...";
-	if (!device->setDetectThres(detectThres.x, detectThres.y, detectThres.z))
-	{
-		ofLog(OF_LOG_NOTICE) << "Failed to setDetectThres";
-		return false;
-	}
-	return true;
+	// Make sure the data is in range
+    detectThres.x = ofClamp(detectThres.x, 30, 2000);
+    detectThres.y = ofClamp(detectThres.y, 240, 2000);
+    detectThres.z = ofClamp(detectThres.z, 0, 65535);
+
+    if (m_isFake) return true;
+
+    ofLog(OF_LOG_VERBOSE) << "setDetectThres...";
+
+    if (!device->setDetectThres(detectThres.x, detectThres.y, detectThres.z))
+    {
+        ofLog(OF_LOG_NOTICE) << "Failed to setDetectThres";
+        return false;
+    }
+    return true;
 }
 
 bool mmSensor::updateTrigSensitivity()
 {
-	if (device != nullptr)
+    triggerSensitivity = ofClamp(triggerSensitivity, 0, 9);
+
+    if (m_isFake) return true;
+    
+    if (!device->setTrigSensitivity(triggerSensitivity))
 	{
-		if (!device->setTrigSensitivity(triggerSensitivity))
-		{
-			ofLog(OF_LOG_NOTICE) << "mmSensor: Failed to setTrigSensitivity";
-			return false;
-		}
-		return true;
-	}
+		ofLog(OF_LOG_NOTICE) << "mmSensor: Failed to setTrigSensitivity";
+        return false;
+    }
+    return true;
 }
 
 bool mmSensor::updateKeepSensitivity()
 {
-	if (!device->setKeepSensitivity(keepSensitivity))
-	{
-		ofLog(OF_LOG_NOTICE) << "Failed to setKeepSensitivity";
-		return false;
-	}
-	return true;
+    keepSensitivity = ofClamp(keepSensitivity, 0, 9);
+
+    if (m_isFake) return true;
+    if (!device->setKeepSensitivity(keepSensitivity))
+    {
+        ofLog(OF_LOG_NOTICE) << "Failed to setKeepSensitivity";
+        return false;
+    }
+    return true;
 }
 
 bool mmSensor::updateDelay()
 {
-	if (m_isFake) return true;
-	ofLog(OF_LOG_VERBOSE) << "setDelay...";
-	if (!device->setDelay(triggerDelay, keepDelay))
-	{
-		ofLog(OF_LOG_NOTICE) << "Failed to setDelay";
-		return false;
-	}
-	return true;
+	triggerDelay = ofClamp(triggerDelay, 0, 200);
+    keepDelay = ofClamp(keepDelay, 4, 3000);
+
+    if (m_isFake) return true;
+    ofLog(OF_LOG_VERBOSE) << "setDelay...";
+    if (!device->setDelay(triggerDelay, keepDelay))
+    {
+        ofLog(OF_LOG_NOTICE) << "Failed to setDelay";
+        return false;
+    }
+    return true;
 }
 
 ofJson mmSensor::getSettings()
