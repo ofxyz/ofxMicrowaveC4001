@@ -157,7 +157,7 @@ public:
 	DFRobot_C4001();
 	virtual ~DFRobot_C4001();
 
-	bool begin(void) { return true; }
+	virtual bool begin(void) { return true; }
 public:
 
 	uint8_t  uartI2CFlag = 0;

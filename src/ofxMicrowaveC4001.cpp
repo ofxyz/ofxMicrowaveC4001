@@ -39,23 +39,48 @@ ofJson ofxMicrowaveC4001::getSettings()
 
 void ofxMicrowaveC4001::setSettings(ofJson settings)
 {
+    scanForDevices();
+
     for(ofJson j : settings) {
         std::string location = "";
         location = j.value("m_Location", location);
+        bool found = false;
         if(location != ""){
-            bool found = false;
-            for(mmSensor* s : mmSensors){
-                if(s->getLocation() == location) {
+            std::string path = j.value("m_path", "");
+            uint8_t address = j.value("m_address", 0);
+            if(path!="")
+            {
+            for(auto& device:devices )
+            {
+                if(device.first == path && device.second == address )
+                {
+                    mmSensors.push_back(new mmSensor(path, address));
+                    mmSensors[mmSensors.size()-1]->setSettings(j);
                     found = true;
-                    s->setSettings(j);
-                    continue;
                 }
             }
-            if(!found) {
-                mmSensors.push_back(new mmSensor(j.value("m_path", ""), j.value("m_address", 0)));
+            }
+            if (!found)
+            {
+                // No hardware device has been found, create a dummy device
+                mmSensors.push_back(new mmSensor("",0));
                 mmSensors[mmSensors.size()-1]->setSettings(j);
             }
-        } 
+            // bool found = false;
+            // for(mmSensor* s : mmSensors){
+            //     if(s->getLocation() == location) {
+            //         found = true;
+            //         s->setSettings(j);
+            //         continue;
+            //     }
+            // }
+
+            
+            // // if(!found) {
+            // //     mmSensors.push_back(new mmSensor(j.value("m_path", ""), j.value("m_address", 0)));
+            // //     mmSensors[mmSensors.size()-1]->setSettings(j);
+            // // }
+        }
     }
 }
 
@@ -93,7 +118,7 @@ int ofxMicrowaveC4001::addDevices()
 
 void ofxMicrowaveC4001::setup()
 {
-    if(scanAdd() == 0) addToySensor();
+    //if(scanAdd() == 0) addToySensor();
 };
 
 void ofxMicrowaveC4001::setup(void (*funcPtr)(void*), void* pOwner)

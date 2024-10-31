@@ -48,7 +48,7 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
 	else {
 		ofLog(OF_LOG_NOTICE) << "mmSensor: No path given, a fake sensor (C4001) will be initialized ...";
 		m_isFake = true;
-		device = new Toy_C4001("Toy Sensor", address);
+		device = new DFRobot_C4001_DUMMY("Toy Sensor", address);
 		name = "Fake Sensor (0x" + uint8_to_hex_string(address) + ")";
 	}
 
@@ -248,12 +248,11 @@ void mmSensor::setSettings(ofJson settings)
 	keepSensitivity = settings.value("keepSensitivity", keepSensitivity);
 	triggerDelay = settings.value("triggerDelay", triggerDelay);
 	keepDelay = settings.value("keepDelay", keepDelay);
-	// TODO: If path or address is not the same reconnect.
-	// For now only saved to ID the sensor
-	// m_path = settings.value("m_path", m_path);
-	// m_address = settings.value("m_address", m_address);
+	m_path = settings.value("m_path", m_path);
+	m_address = settings.value("m_address", m_address);
 	updateMillis = settings.value("updateMillis", updateMillis);
 	syncMillis = settings.value("syncMillis", syncMillis);
+	// a generated value i.e: hash of path and address
 	//m_Location = settings.value("m_Location", m_Location);    
 }
 
