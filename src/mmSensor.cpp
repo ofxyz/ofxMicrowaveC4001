@@ -41,7 +41,7 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
 		scanForDevices();
 
 		bool found = false;
-		for (auto& device : devices)
+		for (auto& device : m_Devices)
 		{
 			if (device.first == path && device.second == address)
 			{
