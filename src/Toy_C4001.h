@@ -4,10 +4,9 @@
 #include "DFRobot_C4001.h"
 
 
-// Fake Sensor
 class Toy_C4001 : public DFRobot_C4001_DUMMY {
 public:
-	Toy_C4001(const char* deviceName, uint8_t address = 0x00) :DFRobot_C4001_DUMMY(deviceName, address) {}
+	Toy_C4001(const char* deviceName, uint8_t address = 0x00) : DFRobot_C4001_DUMMY(deviceName, address) {}
 	~Toy_C4001() {}
 
 	glm::ivec3 detectRange = { 30, 300, 150 };

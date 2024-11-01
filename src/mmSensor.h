@@ -5,12 +5,10 @@
 #if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_7__)
 #define RPI
 #include "ofxGPIO.h"
-
-#else
 #endif
+
 #include "DFRobot_C4001.h"
 #include "Toy_C4001.h"
-
 #include "ofJson.h"
 
 class mmSensor {
@@ -47,6 +45,7 @@ public:
 	std::string& getName();
 	std::string uint8_to_hex_string(uint8_t value);
 
+	bool connected;
 	bool motionDetected;
 	float targetDist;
 	uint8_t targetCount;

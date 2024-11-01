@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <regex>
 
 #ifdef RPI
 #define Sleep(x) usleep(1000 * x)
@@ -37,18 +38,20 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
 	if (path != "") {
 #ifdef RPI
 		m_isFake = false;
+		connected = true;
 		device = new DFRobot_C4001_I2C(path.c_str(), address);
 		name = "Wave Sensor (0x" + uint8_to_hex_string(address) + ")";
 #else
-		m_isFake = true;
+		m_isFake = false;
+		connected = false; // No GPIO Access
 		device = new DFRobot_C4001_DUMMY(path.c_str(), address);
-		name = "Fake Sensor (0x" + uint8_to_hex_string(address) + ")";
+		name = "Missing Sensor (0x" + uint8_to_hex_string(address) + ")";
 #endif
 	}
 	else {
-		ofLog(OF_LOG_NOTICE) << "mmSensor: No path given, a fake sensor (C4001) will be initialized ...";
+		ofLog(OF_LOG_NOTICE) << "mmSensor: No path given, a toy sensor (C4001) will be initialized ...";
 		m_isFake = true;
-		device = new DFRobot_C4001_DUMMY("Toy Sensor", address);
+		device = new Toy_C4001("Toy Sensor", address);
 		name = "Fake Sensor (0x" + uint8_to_hex_string(address) + ")";
 	}
 
@@ -93,6 +96,7 @@ void mmSensor::syncNow()
 bool mmSensor::connect(int tries /*= 4*/)
 {
 	if (m_isFake) return true;
+	connected = false;
 
 	while (!device->begin() && tries-- != 0)
 	{
@@ -101,11 +105,11 @@ bool mmSensor::connect(int tries /*= 4*/)
 	}
 	if (tries == 0) {
 		ofLog(OF_LOG_WARNING) << "Could not connect to sensor (timeout) ...";
-		return false;
+		return connected = false;
 	}
 
 	ofLog(OF_LOG_NOTICE) << "Sensor connected ...";
-	return true;
+	return connected = true;
 }
 
 bool mmSensor::setup()
@@ -125,8 +129,11 @@ bool mmSensor::setup()
     updateDetectThres();
     updateTrigSensitivity();
     updateKeepSensitivity();
-    if (m_isFake == false)
-        device->setSensor(eStartSen);
+
+	if (!m_isFake) {
+		device->setSensor(eStartSen);
+	}
+
     return true;
 }
 
@@ -148,7 +155,6 @@ bool mmSensor::updateDetectRange()
 	detectRange.y = ofClamp(detectRange.y, 240, 2000);
 	detectRange.z = ofClamp(detectRange.z, 240, 2000);
 
-    if (m_isFake) return true;
     ofLog(OF_LOG_VERBOSE) << "setDetectionRange...";
 
     if (!device->setDetectionRange(detectRange.x, detectRange.y, detectRange.z))
@@ -166,8 +172,6 @@ bool mmSensor::updateDetectThres()
     detectThres.y = ofClamp(detectThres.y, 240, 2000);
     detectThres.z = ofClamp(detectThres.z, 0, 65535);
 
-    if (m_isFake) return true;
-
     ofLog(OF_LOG_VERBOSE) << "setDetectThres...";
 
     if (!device->setDetectThres(detectThres.x, detectThres.y, detectThres.z))
@@ -181,8 +185,6 @@ bool mmSensor::updateDetectThres()
 bool mmSensor::updateTrigSensitivity()
 {
     triggerSensitivity = ofClamp(triggerSensitivity, 0, 9);
-
-    if (m_isFake) return true;
     
     if (!device->setTrigSensitivity(triggerSensitivity))
 	{
@@ -196,7 +198,6 @@ bool mmSensor::updateKeepSensitivity()
 {
     keepSensitivity = ofClamp(keepSensitivity, 0, 9);
 
-    if (m_isFake) return true;
     if (!device->setKeepSensitivity(keepSensitivity))
     {
         ofLog(OF_LOG_NOTICE) << "Failed to setKeepSensitivity";
@@ -210,7 +211,6 @@ bool mmSensor::updateDelay()
 	triggerDelay = ofClamp(triggerDelay, 0, 200);
     keepDelay = ofClamp(keepDelay, 4, 3000);
 
-    if (m_isFake) return true;
     ofLog(OF_LOG_VERBOSE) << "setDelay...";
     if (!device->setDelay(triggerDelay, keepDelay))
     {

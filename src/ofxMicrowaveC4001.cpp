@@ -42,44 +42,49 @@ void ofxMicrowaveC4001::setSettings(ofJson settings)
     scanForDevices();
 
     for(ofJson j : settings) {
-        std::string location = "";
+        std::string location = ""; //ID String
         location = j.value("m_Location", location);
         bool found = false;
-        if(location != ""){
+		
+        if (location != "") {
+			for (auto& s : mmSensors)
+			{
+				if (s->m_Location == location) {
+					s->setSettings(j);
+					found = true;
+                    continue;
+				}
+			}
+        }
+        if (found) continue;
+        // Else no device updated or created...
+        
+        if(location != "") {
             std::string path = j.value("m_path", "");
             uint8_t address = j.value("m_address", 0);
+			mmSensors.push_back(new mmSensor(path, address));
+			mmSensors[mmSensors.size() - 1]->setSettings(j);
+
+            /*
             if(path!="")
             {
-            for(auto& device:devices )
-            {
-                if(device.first == path && device.second == address )
-                {
-                    mmSensors.push_back(new mmSensor(path, address));
-                    mmSensors[mmSensors.size()-1]->setSettings(j);
-                    found = true;
-                }
-            }
+				for (auto& device : devices)
+				{
+					if (device.first == path && device.second == address)
+					{
+						mmSensors.push_back(new mmSensor(path, address));
+						mmSensors[mmSensors.size() - 1]->setSettings(j);
+						found = true;
+					}
+				}
             }
             if (!found)
             {
-                // No hardware device has been found, create a dummy device
+                // No matching devices have been found, create a new one
                 mmSensors.push_back(new mmSensor("",0));
                 mmSensors[mmSensors.size()-1]->setSettings(j);
             }
-            // bool found = false;
-            // for(mmSensor* s : mmSensors){
-            //     if(s->getLocation() == location) {
-            //         found = true;
-            //         s->setSettings(j);
-            //         continue;
-            //     }
-            // }
-
-            
-            // // if(!found) {
-            // //     mmSensors.push_back(new mmSensor(j.value("m_path", ""), j.value("m_address", 0)));
-            // //     mmSensors[mmSensors.size()-1]->setSettings(j);
-            // // }
+            */
         }
     }
 }
