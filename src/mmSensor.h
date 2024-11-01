@@ -73,6 +73,8 @@ public:
 	float syncMillis;
 	bool dead;
 private:
+	int scanForDevices();
+	std::vector<std::pair<std::string, uint8_t>> m_Devices;
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_lastUpdate;
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_lastSync;
 	bool m_ForceSync;

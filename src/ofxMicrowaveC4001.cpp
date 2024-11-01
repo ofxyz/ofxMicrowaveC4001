@@ -39,8 +39,6 @@ ofJson ofxMicrowaveC4001::getSettings()
 
 void ofxMicrowaveC4001::setSettings(ofJson settings)
 {
-    scanForDevices();
-
     for(ofJson j : settings) {
         std::string location = ""; //ID String
         location = j.value("m_Location", location);
@@ -56,35 +54,14 @@ void ofxMicrowaveC4001::setSettings(ofJson settings)
 				}
 			}
         }
-        if (found) continue;
-        // Else no device updated or created...
-        
-        if(location != "") {
+        if (found) {
+            continue;
+        } 
+        else if (location != "") {
             std::string path = j.value("m_path", "");
             uint8_t address = j.value("m_address", 0);
 			mmSensors.push_back(new mmSensor(path, address));
 			mmSensors[mmSensors.size() - 1]->setSettings(j);
-
-            /*
-            if(path!="")
-            {
-				for (auto& device : devices)
-				{
-					if (device.first == path && device.second == address)
-					{
-						mmSensors.push_back(new mmSensor(path, address));
-						mmSensors[mmSensors.size() - 1]->setSettings(j);
-						found = true;
-					}
-				}
-            }
-            if (!found)
-            {
-                // No matching devices have been found, create a new one
-                mmSensors.push_back(new mmSensor("",0));
-                mmSensors[mmSensors.size()-1]->setSettings(j);
-            }
-            */
         }
     }
 }

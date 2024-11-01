@@ -5,6 +5,7 @@
 #include <regex>
 
 #ifdef RPI
+#include "i2c.h"
 #define Sleep(x) usleep(1000 * x)
 #endif
 
@@ -37,15 +38,33 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
 {
 	if (path != "") {
 #ifdef RPI
+		scanForDevices();
+
+		bool found = false;
+		for (auto& device : devices)
+		{
+			if (device.first == path && device.second == address)
+			{
+				m_isFake = false;
+				connected = true;
+				device = new DFRobot_C4001_I2C(path.c_str(), address);
+				name = "Wave Sensor (0x" + uint8_to_hex_string(address) + ")";
+				goto added;
+			}
+		}
+		
+		// No connected devices have been found
 		m_isFake = false;
-		connected = true;
-		device = new DFRobot_C4001_I2C(path.c_str(), address);
-		name = "Wave Sensor (0x" + uint8_to_hex_string(address) + ")";
+		connected = false; // Not connected
+		device = new DFRobot_C4001_DUMMY(path.c_str(), address);
+		name = "Missing Sensor (0x" + uint8_to_hex_string(address) + ")";
+		goto added;
 #else
 		m_isFake = false;
 		connected = false; // No GPIO Access
 		device = new DFRobot_C4001_DUMMY(path.c_str(), address);
 		name = "Missing Sensor (0x" + uint8_to_hex_string(address) + ")";
+		goto added;
 #endif
 	}
 	else {
@@ -53,8 +72,10 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
 		m_isFake = true;
 		device = new Toy_C4001("Toy Sensor", address);
 		name = "Fake Sensor (0x" + uint8_to_hex_string(address) + ")";
+		goto added;
 	}
 
+added:
 	m_Location = path + "0x" + uint8_to_hex_string(address);
 	// Init 
 	dead = false;
@@ -368,6 +389,30 @@ std::string mmSensor::uint8_to_hex_string(uint8_t value)
 	ss << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(value);
 
 	return ss.str();
+}
+
+int mmSensor::scanForDevices()
+{
+	m_Devices.clear();
+
+#ifdef RPI
+	/*
+	 * The I2C DfRobot C4001 sensor address can be set to 0x2A or 0x2B (via DIP switch)
+	 */
+	m_Devices = I2c::getDevices(0x2A, 0x2B);
+#endif
+
+	if (!m_Devices.empty()) {
+		ofLog(OF_LOG_NOTICE) << "Found " << m_Devices.size() << " DfRobot C4001 sensor(s):";
+		for (auto& device : m_Devices) {
+			ofLog(OF_LOG_NOTICE) << "Path: " << device.first.c_str() << " Device: " << (int)device.second;
+		}
+	}
+	else {
+		ofLog(OF_LOG_NOTICE) << "No DfRobot C4001 sensors found.";
+	}
+
+	return m_Devices.size();
 }
 
 std::string& mmSensor::getName()

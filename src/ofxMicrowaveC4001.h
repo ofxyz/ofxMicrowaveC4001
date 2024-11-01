@@ -3,6 +3,7 @@
 #include "mmSensor.h"
 #include "ofJson.h"
 #include "IBaseSensor.h"
+
 class ofxMicrowaveC4001
 {
 public:
