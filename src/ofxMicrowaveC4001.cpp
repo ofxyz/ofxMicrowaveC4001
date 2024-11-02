@@ -114,7 +114,7 @@ void ofxMicrowaveC4001::update()
 {
     mmSensors.erase(std::remove_if(mmSensors.begin(), mmSensors.end(), [](const mmSensor* sensor)
     {
-        if(sensor->dead){
+        if(sensor->m_bDead){
             delete sensor;
             sensor = nullptr;
             return true;

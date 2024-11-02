@@ -64,14 +64,14 @@ public:
 	std::string m_Location; // Will be used as ID
 	glm::ivec3 detectRange;
 	glm::ivec3 detectThres;
-	uint8_t triggerSensitivity;
-	uint8_t keepSensitivity;
+	uint8_t m_uiTriggerSensitivity;
+	uint8_t m_uiKeepSensitivity;
 	std::string m_path;
 	uint8_t m_address;
 	// How often we speak to the device
-	float updateMillis;
-	float syncMillis;
-	bool dead;
+	float m_fUpdateMillis;
+	float m_fSyncMillis;
+	bool m_bDead;
 private:
 	int scanForDevices();
 	std::vector<std::pair<std::string, uint8_t>> m_Devices;
@@ -81,7 +81,7 @@ private:
 	bool m_isFake;
 	bool m_updateDevice;
 
-	DFRobot_C4001* device;
+	DFRobot_C4001* m_Device;
 
 	std::vector<std::pair<void*, void (*)(void*)>> m_vTriggerCallbacks;
 };
