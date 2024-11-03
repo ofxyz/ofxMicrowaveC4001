@@ -62,16 +62,25 @@ public:
 	// Saved...
 	// TODO: Will be better in a struct
 	std::string m_Location; // Will be used as ID
+	//unit cm, range 0.3~20m (30~2000)
+
+	// Units : cm
+	// @param x: min Detection range 0.3~20m(30~2000)
+	// @param y: max Detection range 2.4~20m(240~2000)
+	// @param z: Trigger distance, from 2.4 to 20m (240 to 2000)
 	glm::ivec3 detectRange;
 	glm::ivec3 detectThres;
+
 	uint8_t m_uiTriggerSensitivity;
 	uint8_t m_uiKeepSensitivity;
-	std::string m_path;
 	uint8_t m_address;
+	std::string m_path;
+
 	// How often we speak to the device
 	float m_fUpdateMillis;
 	float m_fSyncMillis;
 	bool m_bDead;
+
 private:
 	int scanForDevices();
 	std::vector<std::pair<std::string, uint8_t>> m_Devices;

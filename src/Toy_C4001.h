@@ -68,7 +68,7 @@ public:
 	}
 
 	virtual bool motionDetection() {
-		return (getTargetRange() < (detectRange.z * 0.01)) ? 0 : 1;
+		return (getTargetNumber() > 0)? 1 : 0;
 	}
 
 	virtual uint32_t getTargetEnergy(void) {
