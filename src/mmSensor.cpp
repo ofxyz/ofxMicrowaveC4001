@@ -139,9 +139,16 @@ bool mmSensor::setup()
 
 	if (!m_isFake) {
 		ofLog(OF_LOG_VERBOSE) << "setSensorMode...";
-		if (!m_Device->setSensorMode(eSpeedMode))
+		int tries = 4;
+		while (!m_Device->setSensorMode(eSpeedMode) && tries-- != 0) {
+			ofLog(OF_LOG_NOTICE) << "Failed to setSensorMode, retrying ...";
+			Sleep(1000);
+		}
+		if (tries == 0)
 		{
-			ofLog(OF_LOG_NOTICE) << "Failed to setSensorMode";
+			ofLog(OF_LOG_NOTICE) << "Failed to setSensorMode ...";
+			connected = false;
+			return connected;
 		}
 	}
 
@@ -318,6 +325,14 @@ bool mmSensor::update()
 		if (lastsync > m_fSyncMillis || m_ForceSync) {
 			m_lastSync = std::chrono::high_resolution_clock::now();
 			m_ForceSync = false;
+
+			if (!m_isFake && !connected) {
+				if (!setup()) {
+					//Setup will log the error
+					return false;
+				}
+			}
+
 			bool r5 = updateDelay();
 			bool r1 = updateDetectRange();
 			bool r2 = updateDetectThres();
