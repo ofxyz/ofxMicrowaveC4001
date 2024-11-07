@@ -320,18 +320,18 @@ bool mmSensor::update()
 		return true; // Not yet time to update, but all good.
 	}
 
+	if (!m_isFake && !connected) {
+		if (!setup()) {
+			//Setup will log the error
+			return false;
+		}
+	}
+
 	if (m_updateDevice || m_ForceSync) {
 		float lastsync = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastSync).count();
 		if (lastsync > m_fSyncMillis || m_ForceSync) {
 			m_lastSync = std::chrono::high_resolution_clock::now();
 			m_ForceSync = false;
-
-			if (!m_isFake && !connected) {
-				if (!setup()) {
-					//Setup will log the error
-					return false;
-				}
-			}
 
 			bool r5 = updateDelay();
 			bool r1 = updateDetectRange();
