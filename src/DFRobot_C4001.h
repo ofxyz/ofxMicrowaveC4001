@@ -413,7 +413,7 @@ protected:
 private:
 	uint8_t  _M_Flag = 0;
 	sPrivateData_t _buffer;
-	virtual void writeReg(uint8_t reg, uint8_t* data, uint8_t len) = 0;
+	virtual int writeReg(uint8_t reg, uint8_t* data, uint8_t len) = 0;
 	virtual int16_t readReg(uint8_t reg, uint8_t* data, uint8_t len) = 0;
 };
 
@@ -424,11 +424,11 @@ public:
 	~DFRobot_C4001_I2C();
 	virtual bool begin(void);
 protected:
-	virtual void writeReg(uint8_t reg, uint8_t* data, uint8_t len);
+	virtual int writeReg(uint8_t reg, uint8_t* data, uint8_t len);
 	virtual int16_t readReg(uint8_t reg, uint8_t* data, uint8_t len);
 private:
 	I2c* i2c;
-	std::string path;
+	std::string path; 
 };
 #endif
 class DFRobot_C4001_DUMMY : public DFRobot_C4001 {
@@ -437,7 +437,7 @@ public:
 	~DFRobot_C4001_DUMMY();
 
 protected:
-	virtual void writeReg(uint8_t reg, uint8_t* data, uint8_t len);
+	virtual int writeReg(uint8_t reg, uint8_t* data, uint8_t len);
 	virtual int16_t readReg(uint8_t reg, uint8_t* data, uint8_t len);
 private:
 	std::string path;

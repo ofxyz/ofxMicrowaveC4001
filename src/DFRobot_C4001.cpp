@@ -833,9 +833,9 @@ bool DFRobot_C4001_I2C::begin()
 	return bRes;
 }
 
-void DFRobot_C4001_I2C::writeReg(uint8_t reg, uint8_t* data, uint8_t len)
+int DFRobot_C4001_I2C::writeReg(uint8_t reg, uint8_t* data, uint8_t len)
 {
-	i2c->writeBlockData(reg, len, data);
+	return i2c->writeBlockData(reg, len, data);
 }
 
 int16_t DFRobot_C4001_I2C::readReg(uint8_t reg, uint8_t* data, uint8_t len)
@@ -856,8 +856,9 @@ DFRobot_C4001_DUMMY ::~DFRobot_C4001_DUMMY()
 {
 
 }
-void DFRobot_C4001_DUMMY::writeReg(uint8_t reg, uint8_t* data, uint8_t len)
+int DFRobot_C4001_DUMMY::writeReg(uint8_t reg, uint8_t* data, uint8_t len)
 {
+	return 1;
 }
 
 int16_t DFRobot_C4001_DUMMY::readReg(uint8_t reg, uint8_t* data, uint8_t len)
