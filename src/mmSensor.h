@@ -67,10 +67,14 @@ public:
     //unit cm, range 0.3~20m (30~2000)
 
     // Units : cm
-    // @param x: min Detection range 0.3~20m(30~2000)
+    // @param x: min Detection range 0.3~20m(30~2000), not exceeding max
     // @param y: max Detection range 2.4~20m(240~2000)
-    // @param z: Trigger distance, from 2.4 to 20m (240 to 2000)
+    // @param z: Trigger distance, from 2.4 to 20m (240 to 2000) 
     glm::ivec3 detectRange;
+    // Units : cm
+    // @param x: min Detection range 0.3~20m (30~2000), not exceeding max
+    // @param y: max Detection range 2.4~20m (240~2000)
+    // @param z: Target detection threshold, dimensionless unit 0.1, range 0~6553.5 (0~65535)
     glm::ivec3 detectThres;
 
     uint8_t m_uiTriggerSensitivity;
