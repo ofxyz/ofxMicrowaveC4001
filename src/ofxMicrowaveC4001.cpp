@@ -100,7 +100,7 @@ int ofxMicrowaveC4001::addDevices()
 
 void ofxMicrowaveC4001::setup()
 {
-    //if(scanAdd() == 0) addToySensor();
+    scanAdd();
 };
 
 void ofxMicrowaveC4001::setup(void (*funcPtr)(void*), void* pOwner)
