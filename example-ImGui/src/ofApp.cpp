@@ -100,10 +100,10 @@ void ofApp::drawC4001Window(std::vector<mmSensor*>& sensors)
             if(ImGui::DragScalar("Dist", ImGuiDataType_U32, &sensor->detectRange.z, 1, &sensor->detectRange.x, &sensor->detectRange.y, "%d cm", ImGuiSliderFlags_AlwaysClamp)){
                 sensor->updateDevice();
             };
-            if(ImGui::DragScalar("Trig Sens", ImGuiDataType_U8, &sensor->triggerSensitivity, 1, &sensor->sensitivityMin, &sensor->sensitivityMax, "%d", ImGuiSliderFlags_AlwaysClamp)){
+            if(ImGui::DragScalar("Trig Sens", ImGuiDataType_U8, &sensor->m_uiTriggerSensitivity, 1, &sensor->sensitivityMin, &sensor->sensitivityMax, "%d", ImGuiSliderFlags_AlwaysClamp)){
                 sensor->updateDevice();
             };
-            if(ImGui::DragScalar("Keep Sens", ImGuiDataType_U8, &sensor->keepSensitivity, 1, &sensor->sensitivityMin, &sensor->sensitivityMax, "%d", ImGuiSliderFlags_AlwaysClamp)){
+            if(ImGui::DragScalar("Keep Sens", ImGuiDataType_U8, &sensor->m_uiKeepSensitivity, 1, &sensor->sensitivityMin, &sensor->sensitivityMax, "%d", ImGuiSliderFlags_AlwaysClamp)){
                 sensor->updateDevice();
             };
 
@@ -114,7 +114,7 @@ void ofApp::drawC4001Window(std::vector<mmSensor*>& sensors)
 
 			ImGui::SameLine();
 			if(ImGui::Button("Delete")){
-				sensor->dead = true; 
+				sensor->m_bDead = true; 
 			};
 
         };
