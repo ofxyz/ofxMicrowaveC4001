@@ -13,86 +13,86 @@
 
 class mmSensor {
 public:
-	mmSensor(std::string path = "", uint8_t address = 0x00);
-	~mmSensor();
+    mmSensor(std::string path = "", uint8_t address = 0x00);
+    ~mmSensor();
 
-	bool setup();
-	bool setup(void (*callbackPtr)(void*), void* pOwner);
-	bool connect(int tries = 4);
-	bool update();
+    bool setup();
+    bool setup(void (*callbackPtr)(void*), void* pOwner);
+    bool connect(int tries = 4);
+    bool update();
 
-	void addTriggerCallback(void (*funcPtr)(void*), void* pOwner);
-	void callTriggerCallbacks();
+    void addTriggerCallback(void (*funcPtr)(void*), void* pOwner);
+    void callTriggerCallbacks();
 
-	bool isFake();
-	bool isInSync();
-	void syncNow();
+    bool isFake();
+    bool isInSync();
+    void syncNow();
 
-	void updateDevice();
-	bool updateDetectRange();
-	bool updateDetectThres();
-	bool updateTrigSensitivity();
-	bool updateKeepSensitivity();
-	bool updateDelay();
+    void updateDevice();
+    bool updateDetectRange();
+    bool updateDetectThres();
+    bool updateTrigSensitivity();
+    bool updateKeepSensitivity();
+    bool updateDelay();
 
-	ofJson getSettings();
-	void setSettings(ofJson settings);
+    ofJson getSettings();
+    void setSettings(ofJson settings);
 
-	std::string getLocation();
+    std::string getLocation();
 
-	glm::ivec3& getDetectTRange();
-	glm::ivec3& getDetectThres();
-	std::string& getName();
-	std::string uint8_to_hex_string(uint8_t value);
+    glm::ivec3& getDetectTRange();
+    glm::ivec3& getDetectThres();
+    std::string& getName();
+    std::string uint8_to_hex_string(uint8_t value);
 
-	bool connected;
-	bool motionDetected;
-	bool trigger;
-	glm::ivec3 triggerRange;
-	float targetDist;
-	uint8_t targetCount;
-	uint32_t targetEnergy;
+    bool connected;
+    bool motionDetected;
+    bool trigger;
+    glm::ivec3 triggerRange;
+    float targetDist;
+    uint8_t targetCount;
+    uint32_t targetEnergy;
 
-	// Both keep and trigger sensitivity
-	uint8_t sensitivityMin;
-	uint8_t sensitivityMax;
-	uint8_t triggerDelay;
-	uint16_t keepDelay;
-	float zoom;
-	std::string name;
+    // Both keep and trigger sensitivity
+    uint8_t sensitivityMin;
+    uint8_t sensitivityMax;
+    uint8_t triggerDelay;
+    uint16_t keepDelay;
+    float zoom;
+    std::string name;
 
-	// Saved...
-	// TODO: Will be better in a struct
-	std::string m_Location; // Will be used as ID
-	//unit cm, range 0.3~20m (30~2000)
+    // Saved...
+    // TODO: Will be better in a struct
+    std::string m_Location; // Will be used as ID
+    //unit cm, range 0.3~20m (30~2000)
 
-	// Units : cm
-	// @param x: min Detection range 0.3~20m(30~2000)
-	// @param y: max Detection range 2.4~20m(240~2000)
-	// @param z: Trigger distance, from 2.4 to 20m (240 to 2000)
-	glm::ivec3 detectRange;
-	glm::ivec3 detectThres;
+    // Units : cm
+    // @param x: min Detection range 0.3~20m(30~2000)
+    // @param y: max Detection range 2.4~20m(240~2000)
+    // @param z: Trigger distance, from 2.4 to 20m (240 to 2000)
+    glm::ivec3 detectRange;
+    glm::ivec3 detectThres;
 
-	uint8_t m_uiTriggerSensitivity;
-	uint8_t m_uiKeepSensitivity;
-	uint8_t m_address;
-	std::string m_path;
+    uint8_t m_uiTriggerSensitivity;
+    uint8_t m_uiKeepSensitivity;
+    uint8_t m_address;
+    std::string m_path;
 
-	// How often we speak to the device
-	float m_fUpdateMillis;
-	float m_fSyncMillis;
-	bool m_bDead;
+    // How often we speak to the device
+    float m_fUpdateMillis;
+    float m_fSyncMillis;
+    bool m_bDead;
 
 private:
-	int scanForDevices();
-	std::vector<std::pair<std::string, uint8_t>> m_Devices;
-	std::chrono::time_point<std::chrono::high_resolution_clock> m_lastUpdate;
-	std::chrono::time_point<std::chrono::high_resolution_clock> m_lastSync;
-	bool m_ForceSync;
-	bool m_isFake;
-	bool m_updateDevice;
+    int scanForDevices();
+    std::vector<std::pair<std::string, uint8_t>> m_Devices;
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_lastUpdate;
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_lastSync;
+    bool m_ForceSync;
+    bool m_isFake;
+    bool m_updateDevice;
 
-	DFRobot_C4001* m_Device;
+    DFRobot_C4001* m_Device;
 
-	std::vector<std::pair<void*, void (*)(void*)>> m_vTriggerCallbacks;
+    std::vector<std::pair<void*, void (*)(void*)>> m_vTriggerCallbacks;
 };
