@@ -359,8 +359,6 @@ bool mmSensor::update()
 		}
 	}
 
-	bool newMotionDetected = false;
-
 	if (m_Device != nullptr) {
 		// [POSSIBLY FAKE] GPIO access 
 		ofLog(OF_LOG_VERBOSE) << "Getting data from C4001... ";
@@ -371,20 +369,26 @@ bool mmSensor::update()
 		//else {
 		//	targetDist = 0;
 		//}
-		newMotionDetected = (m_Device->motionDetection() > 0);
+
 		/*
+		bool newMotionDetected = (m_Device->motionDetection() > 0);
+		
 		if (newMotionDetected == true && motionDetected == false) {
 			callTriggerCallbacks();
 		}
-		*/
+		
 		motionDetected = newMotionDetected;
+		*/
+		motionDetected = (m_Device->motionDetection() > 0);
 
 		targetEnergy = m_Device->getTargetEnergy();
 
 		float targetCM = targetDist * 100;
 		if ((targetCM > triggerRange.x) && (targetCM < triggerRange.y)) {
-			callTriggerCallbacks();
-			trigger = true;
+			if (trigger == false) {
+				callTriggerCallbacks();
+				trigger = true;
+			}
 		}
 		else {
 			trigger = false;
