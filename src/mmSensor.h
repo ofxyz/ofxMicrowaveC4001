@@ -82,6 +82,7 @@ public:
     float m_fUpdateMillis;
     float m_fSyncMillis;
     bool m_bDead;
+    bool m_bSynced;
 
 private:
     int scanForDevices();

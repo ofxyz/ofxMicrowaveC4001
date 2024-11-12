@@ -70,8 +70,9 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
     else {
         ofLog(OF_LOG_NOTICE) << "mmSensor: No path given, a toy sensor (C4001) will be initialized ...";
         m_isFake = true;
+        connected = false; // Not connected
         m_Device = new Toy_C4001("Toy Sensor", address);
-        name = "Fake Sensor (0x" + uint8_to_hex_string(address) + ")";
+        name = "Toy Sensor (0x" + uint8_to_hex_string(address) + ")";
         goto added;
     }
 
@@ -99,7 +100,7 @@ added:
     triggerRange = { 0, 300, 0 };
     m_lastUpdate = std::chrono::high_resolution_clock::now();
     m_lastSync = std::chrono::high_resolution_clock::now();
-    m_fUpdateMillis = 15;
+    m_fUpdateMillis = 10;
     m_fSyncMillis = 5000;
     zoom = 1;
     m_ForceSync = false;
@@ -127,7 +128,7 @@ bool mmSensor::connect(int tries /*= 4*/)
         Sleep(1000);
     }
     if (tries == 0) {
-        ofLog(OF_LOG_WARNING) << "Could not connect to sensor (timeout) ...";
+        ofLog(OF_LOG_NOTICE) << "Could not connect to sensor (timeout) ...";
         return connected = false;
     }
 
@@ -301,12 +302,13 @@ glm::ivec3& mmSensor::getDetectThres()
 
 bool mmSensor::isInSync()
 {
-    return !m_updateDevice;
+    return m_bSynced;
 }
 
 void mmSensor::updateDevice()
 {
     m_updateDevice = true;
+    m_bSynced = false;
 }
 
 bool mmSensor::update()
@@ -345,6 +347,7 @@ bool mmSensor::update()
 
             if (r1 == true && r2 == true && r3 == true && r4 == true && r5 == true) {
                 m_updateDevice = false;
+                m_bSynced = true;
             }
 
             // Make sure we are back on
