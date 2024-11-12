@@ -47,6 +47,8 @@ public:
 
 	bool connected;
 	bool motionDetected;
+	bool trigger;
+	glm::ivec3 triggerRange;
 	float targetDist;
 	uint8_t targetCount;
 	uint32_t targetEnergy;

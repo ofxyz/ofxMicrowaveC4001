@@ -92,9 +92,11 @@ added:
 	m_uiTriggerSensitivity = 3;
 	m_uiKeepSensitivity = 3;
 	motionDetected = false;
+	trigger = false;
 	m_updateDevice = false;
 	detectRange = { 30, 300, 240 };
 	detectThres = { 30, 150, 10 };
+	triggerRange = { 0, 300, 0 };
 	m_lastUpdate = std::chrono::high_resolution_clock::now();
 	m_lastSync = std::chrono::high_resolution_clock::now();
 	m_fUpdateMillis = 15;
@@ -254,6 +256,7 @@ ofJson mmSensor::getSettings()
 
 	to_json(settings["detectRange"], detectRange);
 	to_json(settings["detectThres"], detectThres);
+	to_json(settings["triggerRange"], triggerRange);
 
 	settings["triggerSensitivity"] = m_uiTriggerSensitivity;
 	settings["keepSensitivity"] = m_uiKeepSensitivity;
@@ -272,6 +275,7 @@ void mmSensor::setSettings(ofJson settings)
 {
 	from_json(settings["detectRange"], detectRange);
 	from_json(settings["detectThres"], detectThres);
+	from_json(settings["triggerRange"], triggerRange);
 
 	m_uiTriggerSensitivity = settings.value("triggerSensitivity", m_uiTriggerSensitivity);
 	m_uiKeepSensitivity = settings.value("keepSensitivity", m_uiKeepSensitivity);
@@ -361,18 +365,30 @@ bool mmSensor::update()
 		// [POSSIBLY FAKE] GPIO access 
 		ofLog(OF_LOG_VERBOSE) << "Getting data from C4001... ";
 		targetCount = m_Device->getTargetNumber();
-		if (targetCount > 0) {
+		//if (targetCount > 0) {
 			targetDist = m_Device->getTargetRange();
-		}
-		else {
-			targetDist = 0;
-		}
+		//}
+		//else {
+		//	targetDist = 0;
+		//}
 		newMotionDetected = (m_Device->motionDetection() > 0);
+		/*
 		if (newMotionDetected == true && motionDetected == false) {
 			callTriggerCallbacks();
 		}
+		*/
 		motionDetected = newMotionDetected;
+
 		targetEnergy = m_Device->getTargetEnergy();
+
+		float targetCM = targetDist * 100;
+		if ((targetCM > triggerRange.x) && (targetCM < triggerRange.y)) {
+			callTriggerCallbacks();
+			trigger = true;
+		}
+		else {
+			trigger = false;
+		}
 
 		ofLog(OF_LOG_VERBOSE) << "Target Count: " << (int)targetCount << " Current Distance " << targetDist;
 	}
