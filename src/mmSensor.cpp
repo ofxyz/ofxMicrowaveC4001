@@ -86,22 +86,22 @@ added:
     targetCount = 0;
     targetEnergy = 0;
     // Between 0-9
-    sensitivityMin = 0; // Should be define
-    sensitivityMax = 9; // Should be define
+    sensitivityMin = 0;
+    sensitivityMax = 9;
     triggerDelay = 0;
     keepDelay = 4;
-    m_uiTriggerSensitivity = 3;
+    m_uiTriggerSensitivity = 1;
     m_uiKeepSensitivity = 3;
     motionDetected = false;
     trigger = false;
     m_updateDevice = false;
-    detectRange = { 30, 300, 240 };
-    detectThres = { 30, 240, 10 };
+    detectRange = { 40, 500, 500 };
+    detectThres = { 40, 500, 0 };
     triggerRange = { 0, 300, 0 };
     m_lastUpdate = std::chrono::high_resolution_clock::now();
     m_lastSync = std::chrono::high_resolution_clock::now();
     m_lastTrigger = std::chrono::high_resolution_clock::now();
-    m_fUpdateMillis = 10;
+    m_fUpdateMillis = 30;
     m_fSyncMillis = 5000;
     m_fTriggerMillis = 300;
     m_ForceSync = false;
@@ -183,9 +183,17 @@ bool mmSensor::setup(void (*callbackPtr)(void*), void* pOwner)
 bool mmSensor::updateDetectRange()
 {
     // Make sure the data is in range
-    detectRange.x = ofClamp(detectRange.x, 30, 2000);
-    detectRange.y = ofClamp(detectRange.y, 240, 2000);
-    detectRange.z = ofClamp(detectRange.z, 240, 2000);
+    /*
+    detectRange.x = ofClamp(detectRange.x, 30, 1200);
+    detectRange.y = ofClamp(detectRange.y, 240, 1200);
+    detectRange.z = ofClamp(detectRange.z, 240, 1200);
+    */
+
+    // Keep detect range at comfortable max
+    // The DfRobot C4001 seems to work best between 40 and 1000 cm
+    detectRange.x = 40;
+    detectRange.y = 1000;
+    detectRange.z = 1000;
 
     ofLog(OF_LOG_VERBOSE) << "setDetectionRange...";
 
@@ -200,9 +208,10 @@ bool mmSensor::updateDetectRange()
 bool mmSensor::updateDetectThres()
 {
     // Make sure the data is in range
-    detectThres.x = ofClamp(detectThres.x, 30, 2000);
-    detectThres.y = ofClamp(detectThres.y, 240, 2000);
-    detectThres.z = ofClamp(detectThres.z, 0, 65535);
+    //detectThres.x = ofClamp(detectThres.x, 30, 1200);
+    detectThres.x = 40; // Always 40 as we deal with thresholds ourselves
+    detectThres.y = ofClamp(detectThres.y, 240, 1200);
+    detectThres.z = 0; // Always 0 as we deal with thresholds ourselves
 
     ofLog(OF_LOG_VERBOSE) << "setDetectThres...";
 

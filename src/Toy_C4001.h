@@ -9,8 +9,8 @@ public:
 	Toy_C4001(const char* deviceName, uint8_t address = 0x00) : DFRobot_C4001_DUMMY(deviceName, address) {}
 	~Toy_C4001() {}
 
-	glm::ivec3 detectRange = { 30, 300, 150 };
-	glm::ivec3 detectThres = { 100, 150, 10 };
+	glm::ivec3 detectRange = { 40, 1000, 1000 };
+	glm::ivec3 detectThres = { 40, 500, 0 };
 	uint8_t triggerSensitivity = 1;
 	uint8_t keepSensitivity = 1;
 	uint8_t trigDelay = 0;
@@ -43,7 +43,7 @@ public:
 
 	// Meters
 	virtual float getTargetRange() {
-		return ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, detectRange.x, detectRange.y) * 0.01;
+		return ofMap(ofNoise(ofGetElapsedTimef()), 0, 1, detectThres.x, detectThres.y) * 0.01;
 	}
 
 	virtual bool setSensorMode(eMode_t mode) {
