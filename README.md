@@ -8,7 +8,7 @@ Originally written for an Arduino now as addon for OpenFrameworks.
 
 ![preview_imgui](example-ImGui/img/Preview_ImGui.png)
 
-> Core code for the sensor has been moved to [ofxGPIO](https://github.com/ofxyz/ofxGPIO). This addon excludes the GPIO library when not on a Raspberry and implements a fake sensor for prototyping needs.
+> This addon excludes the GPIO library when not on a Raspberry and implements a fake sensor for prototyping needs.
 
 Dependencies
 ------------
