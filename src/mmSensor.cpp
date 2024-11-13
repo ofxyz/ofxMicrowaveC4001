@@ -342,13 +342,13 @@ bool mmSensor::update()
             m_lastSync = std::chrono::high_resolution_clock::now();
             m_ForceSync = false;
 
-            //bool r5 = updateDelay();
+            bool r5 = updateDelay();
             bool r1 = updateDetectRange();
             bool r2 = updateDetectThres();
             bool r3 = updateTrigSensitivity();
             bool r4 = updateKeepSensitivity();
 
-            if (r1 == true && r2 == true && r3 == true && r4 == true /* && r5 == true*/) {
+            if (r1 == true && r2 == true && r3 == true && r4 == true && r5 == true) {
                 m_updateDevice = false;
                 m_bSynced = true;
             }
