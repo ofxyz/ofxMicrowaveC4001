@@ -90,7 +90,7 @@ added:
     sensitivityMax = 9;
     triggerDelay = 0;
     keepDelay = 4;
-    m_uiTriggerSensitivity = 1;
+    m_uiTriggerSensitivity = 0;
     m_uiKeepSensitivity = 3;
     motionDetected = false;
     trigger = false;
@@ -269,8 +269,8 @@ ofJson mmSensor::getSettings()
     to_json(settings["detectThres"], detectThres);
     to_json(settings["triggerRange"], triggerRange);
 
-    settings["triggerSensitivity"] = m_uiTriggerSensitivity;
-    settings["keepSensitivity"] = m_uiKeepSensitivity;
+    //settings["triggerSensitivity"] = m_uiTriggerSensitivity;
+    //settings["keepSensitivity"] = m_uiKeepSensitivity;
     settings["triggerDelay"] = triggerDelay;
     settings["keepDelay"] = keepDelay;
     settings["m_path"] = m_path;
@@ -289,8 +289,8 @@ void mmSensor::setSettings(ofJson settings)
     from_json(settings["detectThres"], detectThres);
     from_json(settings["triggerRange"], triggerRange);
 
-    m_uiTriggerSensitivity = settings.value("triggerSensitivity", m_uiTriggerSensitivity);
-    m_uiKeepSensitivity = settings.value("keepSensitivity", m_uiKeepSensitivity);
+    //m_uiTriggerSensitivity = settings.value("triggerSensitivity", m_uiTriggerSensitivity);
+    //m_uiKeepSensitivity = settings.value("keepSensitivity", m_uiKeepSensitivity);
     triggerDelay = settings.value("triggerDelay", triggerDelay);
     keepDelay = settings.value("keepDelay", keepDelay);
     m_path = settings.value("m_path", m_path);
@@ -406,7 +406,7 @@ bool mmSensor::update()
                 m_lastTrigger = std::chrono::high_resolution_clock::now();
             }
         }
-        // We use a timer to turn trigger of
+        // We use a timer to turn trigger off
         //else {
         //    trigger = false;
         //}
