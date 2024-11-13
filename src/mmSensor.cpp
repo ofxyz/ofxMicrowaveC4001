@@ -164,6 +164,7 @@ bool mmSensor::setup()
 
     if (!m_isFake) {
         m_Device->setSensor(eStartSen);
+        m_bSynced = true;
     }
 
     return true;
