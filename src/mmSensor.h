@@ -58,7 +58,7 @@ public:
     uint8_t sensitivityMax;
     uint8_t triggerDelay;
     uint16_t keepDelay;
-    float zoom;
+
     std::string name;
 
     // Saved...
@@ -83,8 +83,9 @@ public:
     std::string m_path;
 
     // How often we speak to the device
-    float m_fUpdateMillis;
-    float m_fSyncMillis;
+    int m_fUpdateMillis;
+    int m_fSyncMillis;
+    int m_fTriggerMillis;
     bool m_bDead;
     bool m_bSynced;
 
@@ -93,6 +94,7 @@ private:
     std::vector<std::pair<std::string, uint8_t>> m_Devices;
     std::chrono::time_point<std::chrono::high_resolution_clock> m_lastUpdate;
     std::chrono::time_point<std::chrono::high_resolution_clock> m_lastSync;
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_lastTrigger;
     bool m_ForceSync;
     bool m_isFake;
     bool m_updateDevice;

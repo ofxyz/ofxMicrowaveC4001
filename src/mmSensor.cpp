@@ -100,9 +100,10 @@ added:
     triggerRange = { 0, 300, 0 };
     m_lastUpdate = std::chrono::high_resolution_clock::now();
     m_lastSync = std::chrono::high_resolution_clock::now();
+    m_lastTrigger = std::chrono::high_resolution_clock::now();
     m_fUpdateMillis = 10;
     m_fSyncMillis = 5000;
-    zoom = 1;
+    m_fTriggerMillis = 300;
     m_ForceSync = false;
     setup();
 };
@@ -267,6 +268,7 @@ ofJson mmSensor::getSettings()
     settings["m_address"] = m_address;
     settings["updateMillis"] = m_fUpdateMillis;
     settings["syncMillis"] = m_fSyncMillis;
+    settings["m_fTriggerMillis"] = m_fTriggerMillis;
     settings["m_Location"] = m_Location;
 
     return settings;
@@ -286,8 +288,9 @@ void mmSensor::setSettings(ofJson settings)
     m_address = settings.value("m_address", m_address);
     m_fUpdateMillis = settings.value("updateMillis", m_fUpdateMillis);
     m_fSyncMillis = settings.value("syncMillis", m_fSyncMillis);
+    m_fTriggerMillis = settings.value("m_fTriggerMillis", m_fTriggerMillis);
     // a generated value i.e: hash of path and address
-    //m_Location = settings.value("m_Location", m_Location);    
+    //m_Location = settings.value("m_Location", m_Location);
 }
 
 glm::ivec3& mmSensor::getDetectTRange()
@@ -318,7 +321,7 @@ bool mmSensor::update()
         return false;
     }
 
-    float lastupdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastUpdate).count();
+    int lastupdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastUpdate).count();
     if (lastupdate > m_fUpdateMillis) {
         m_lastUpdate = std::chrono::high_resolution_clock::now();
     }
@@ -391,15 +394,20 @@ bool mmSensor::update()
             if (trigger == false) {
                 callTriggerCallbacks();
                 trigger = true;
+                m_lastTrigger = std::chrono::high_resolution_clock::now();
             }
         }
-        else {
-            trigger = false;
-        }
+        // We use a timer to turn trigger of
+        //else {
+        //    trigger = false;
+        //}
 
         ofLog(OF_LOG_VERBOSE) << "Target Count: " << (int)targetCount << " Current Distance " << targetDist;
     }
 
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_lastTrigger).count() > m_fTriggerMillis) {
+        trigger = false;
+    }
     return true;
 }
 
