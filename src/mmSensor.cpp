@@ -47,6 +47,7 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
             {
                 m_isFake = false;
                 connected = true;
+                missing = false;
                 m_Device = new DFRobot_C4001_I2C(path.c_str(), address);
                 name = "Wave Sensor (0x" + uint8_to_hex_string(address) + ")";
                 goto added;
@@ -56,12 +57,14 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
         // No connected devices have been found
         m_isFake = false;
         connected = false; // Not connected
+        missing = true;
         m_Device = new DFRobot_C4001_DUMMY(path.c_str(), address);
         name = "Missing Sensor (0x" + uint8_to_hex_string(address) + ")";
         goto added;
 #else
         m_isFake = false;
         connected = false; // No GPIO Access
+        missing = true;
         m_Device = new DFRobot_C4001_DUMMY(path.c_str(), address);
         name = "Missing Sensor (0x" + uint8_to_hex_string(address) + ")";
         goto added;
@@ -71,6 +74,7 @@ mmSensor::mmSensor(std::string path /*= ""*/, uint8_t address /*= 0x00*/)
         ofLog(OF_LOG_NOTICE) << "mmSensor: No path given, a toy sensor (C4001) will be initialized ...";
         m_isFake = true;
         connected = false; // Not connected
+        missing = false;
         m_Device = new Toy_C4001("Toy Sensor", address);
         name = "Toy Sensor (0x" + uint8_to_hex_string(address) + ")";
         goto added;
@@ -120,7 +124,7 @@ void mmSensor::syncNow()
 
 bool mmSensor::connect(int tries /*= 4*/)
 {
-    if (m_isFake) return true;
+    if (m_isFake || missing) return connected;
     connected = false;
 
     while (!m_Device->begin() && tries-- != 0)

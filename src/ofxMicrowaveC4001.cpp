@@ -53,15 +53,12 @@ void ofxMicrowaveC4001::setSettings(ofJson settings)
                     continue;
                 }
             }
-        }
-        if (found) {
-            continue;
-        } 
-        else if (location != "") {
-            std::string path = j.value("m_path", "");
-            uint8_t address = j.value("m_address", 0);
-            mmSensors.push_back(new mmSensor(path, address));
-            mmSensors[mmSensors.size() - 1]->setSettings(j);
+            if (!found) {
+                std::string path = j.value("m_path", "");
+                uint8_t address = j.value("m_address", 0);
+                mmSensors.push_back(new mmSensor(path, address));
+                mmSensors[mmSensors.size() - 1]->setSettings(j);
+            }
         }
     }
 }

@@ -46,6 +46,7 @@ public:
     std::string uint8_to_hex_string(uint8_t value);
 
     bool connected;
+    bool missing;
     bool motionDetected;
     bool trigger;
     glm::ivec3 triggerRange;
