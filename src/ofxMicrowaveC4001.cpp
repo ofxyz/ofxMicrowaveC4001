@@ -23,7 +23,7 @@ void ofxMicrowaveC4001::clearSensors()
 
 std::vector<mmSensor*>& ofxMicrowaveC4001::getSensors()
 {
-	return mmSensors;
+    return mmSensors;
 }
 
 ofJson ofxMicrowaveC4001::getSettings()
@@ -43,16 +43,16 @@ void ofxMicrowaveC4001::setSettings(ofJson settings)
         std::string location = ""; //ID String
         location = j.value("m_Location", location);
         bool found = false;
-		
+        
         if (location != "") {
-			for (auto& s : mmSensors)
-			{
-				if (s->m_Location == location) {
-					s->setSettings(j);
-					found = true;
+            for (auto& s : mmSensors)
+            {
+                if (s->m_Location == location) {
+                    s->setSettings(j);
+                    found = true;
                     continue;
-				}
-			}
+                }
+            }
         }
         if (found) {
             continue;
@@ -60,8 +60,8 @@ void ofxMicrowaveC4001::setSettings(ofJson settings)
         else if (location != "") {
             std::string path = j.value("m_path", "");
             uint8_t address = j.value("m_address", 0);
-			mmSensors.push_back(new mmSensor(path, address));
-			mmSensors[mmSensors.size() - 1]->setSettings(j);
+            mmSensors.push_back(new mmSensor(path, address));
+            mmSensors[mmSensors.size() - 1]->setSettings(j);
         }
     }
 }
@@ -87,9 +87,9 @@ int ofxMicrowaveC4001::addDevices()
         if(!exist){
             mmSensors.push_back(new mmSensor(d.first.c_str(), d.second));
             mmSensors[mmSensors.size()-1]->setup();
-			for (auto& cb : m_vTriggerCallbacks) {
-				mmSensors[mmSensors.size() - 1]->addTriggerCallback(cb.second, cb.first);
-			}
+            for (auto& cb : m_vTriggerCallbacks) {
+                mmSensors[mmSensors.size() - 1]->addTriggerCallback(cb.second, cb.first);
+            }
             addedCount++;
         }
     }
@@ -154,9 +154,9 @@ int ofxMicrowaveC4001::scanForDevices()
         for(auto &device: devices){
             ofLog(OF_LOG_NOTICE) << "Path: " << device.first.c_str() << " Device: " << (int)device.second;
         }
-	} else {
-		ofLog(OF_LOG_NOTICE) << "No DfRobot C4001 sensors found.";
-	}
+    } else {
+        ofLog(OF_LOG_NOTICE) << "No DfRobot C4001 sensors found.";
+    }
 
     return devices.size();
 }

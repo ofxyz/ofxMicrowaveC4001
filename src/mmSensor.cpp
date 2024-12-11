@@ -130,11 +130,14 @@ bool mmSensor::connect(int tries /*= 4*/)
     }
     if (tries == 0) {
         ofLog(OF_LOG_NOTICE) << "Could not connect to sensor (timeout) ...";
-        return connected = false;
+        connected = false;
+    }
+    else {
+        ofLog(OF_LOG_NOTICE) << "Sensor connected ...";
+        connected = true;
     }
 
-    ofLog(OF_LOG_NOTICE) << "Sensor connected ...";
-    return connected = true;
+    return connected;
 }
 
 bool mmSensor::setup()
