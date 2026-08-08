@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		<ClCompile Include="src\ofApp.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="src\main.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="src\main.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="src\ofApp.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxMicrowaveC4001\src\mmSensor.cpp">
+			<Filter>addons\ofxMicrowaveC4001\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxMicrowaveC4001\src\ofxMicrowaveC4001.cpp">
+			<Filter>addons\ofxMicrowaveC4001\src</Filter>
+		</ClCompile>
+	</ItemGroup>
+	<ItemGroup>
+		<Filter Include="src">
+			<UniqueIdentifier>{d8376475-7454-4a24-b08a-aac121d3ad6f}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons">
+			<UniqueIdentifier>{BD05901C--D92-3-40-E5-8-7F2-1F56864CF9C3}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxMicrowaveC4001">
+			<UniqueIdentifier>{597B79C8--834-7-4F-85-9-891-910270B70224}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxMicrowaveC4001\src">
+			<UniqueIdentifier>{D2263100--26E-0-45-40-8-FB2-08094CFECEE3}</UniqueIdentifier>
+		</Filter>
+	</ItemGroup>
+	<ItemGroup>
+		<ClInclude Include="src\ofApp.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="src\ofApp.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxMicrowaveC4001\src\Fake_C4001.h">
+			<Filter>addons\ofxMicrowaveC4001\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxMicrowaveC4001\src\mmSensor.h">
+			<Filter>addons\ofxMicrowaveC4001\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxMicrowaveC4001\src\ofxMicrowaveC4001.h">
+			<Filter>addons\ofxMicrowaveC4001\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxMicrowaveC4001\src\Toy_C4001.h">
+			<Filter>addons\ofxMicrowaveC4001\src</Filter>
+		</ClInclude>
+	</ItemGroup>
+	<ItemGroup>
+		<ResourceCompile Include="icon.rc" />
+	</ItemGroup>
+</Project>

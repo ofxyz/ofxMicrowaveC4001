@@ -120,3 +120,5 @@ addons.lnk
 *.lib
 
 *.exp
+
+*.user
