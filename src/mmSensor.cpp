@@ -402,22 +402,18 @@ bool mmSensor::update()
         
         motionDetected = newMotionDetected;
         */
-        motionDetected = (m_Device->motionDetection() > 0);
 
+        motionDetected = m_Device->motionDetection();
         targetEnergy = m_Device->getTargetEnergy();
 
         float targetCM = targetDist * 100;
         if ((targetCM > triggerRange.x) && (targetCM < triggerRange.y)) {
             if (trigger == false) {
                 callTriggerCallbacks();
-                trigger = true;
+                trigger = true; // We use timer BELOW to turn trigger off
                 m_lastTrigger = std::chrono::high_resolution_clock::now();
             }
         }
-        // We use a timer to turn trigger off
-        //else {
-        //    trigger = false;
-        //}
 
         ofLog(OF_LOG_VERBOSE) << "Target Count: " << (int)targetCount << " Current Distance " << targetDist;
     }
@@ -475,7 +471,7 @@ int mmSensor::scanForDevices()
         ofLog(OF_LOG_NOTICE) << "No DfRobot C4001 sensors found.";
     }
 
-    return m_Devices.size();
+    return (int)m_Devices.size();
 }
 
 std::string& mmSensor::getName()

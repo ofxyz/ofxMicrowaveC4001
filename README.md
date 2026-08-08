@@ -10,6 +10,12 @@ Originally written for an Arduino now as addon for OpenFrameworks.
 
 > This addon excludes the GPIO library when not on a Raspberry and implements a fake sensor for prototyping needs.
 
+ECS
+---
+`mmwave_c4001_component` / `mmwave_c4001_json.h` — EnTT POD for network/Pebble sensor state.
+Requires **ofxEnTTKit** on the include path when used (e.g. via ofxESP32).
+
 Dependencies
 ------------
-ofxGPIO
+ofxGPIO (ARM / Raspberry Pi only)
+

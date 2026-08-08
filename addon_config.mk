@@ -16,15 +16,16 @@
 
 meta:
 	ADDON_NAME = ofxMicrowaveC4001
-	ADDON_DESCRIPTION = Read data from Df Robot C4001 mmWave Sensor
+	ADDON_DESCRIPTION = DFRobot C4001 mmWave driver + ECS POD (mmwave_c4001_component)
 	ADDON_AUTHOR = @GitBruno
-	ADDON_TAGS = "C4001" "mmWave" "DfRobot" "I2C"
+	ADDON_TAGS = "C4001" "mmWave" "DfRobot" "I2C" "ECS"
 	ADDON_URL = http://github.com/ofxyx/ofxMicrowaveC4001
 
 common:
-	# dependencies with other addons, a list of them separated by spaces 
-	# or use += in several lines
+	# ofxGPIO only on ARM (see linuxarm*). ECS headers are header-only and
+	# need ofxEnTTKit when included (pulled in by ofxESP32 / host apps).
 	# ADDON_DEPENDENCIES = ofxGPIO // Only include on ARM
+
 
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
